@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Linux 常用命令 | shaohua&#39;s blog</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="linux,linux,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">GODBMW.com</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          
+            <a href="/friends/" target="_self">
+              友链
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          
+            <a href="/about/" target="_self">
+              关于
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path>
+          
+            <a href="javascript:void(0);" v-else>抓到我</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://github.com/dongyuanxin" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://www.zhihu.com/people/godbmw/activities" target="_blank">
+                    知乎
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Linux 常用命令</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-06-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/linux/">
+            linux
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Linux"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h1 id="文件和目录常用命令"><a href="#文件和目录常用命令" class="headerlink" title="文件和目录常用命令"></a>文件和目录常用命令</h1><h2 id="目录操作"><a href="#目录操作" class="headerlink" title="目录操作"></a>目录操作</h2><ul>
+<li><p>查看目录 : ls，ll</p>
+<p>./ 当前目录 ../ 父级目录 / 根目录</p>
+</li>
+<li><p>切换目录 : cd</p>
+</li>
+<li><p>创建目录 : mkdir dirname</p>
+</li>
+<li><p>删除目录 : rm -rf dirname</p>
+</li>
+<li><p>拷贝目录 : cp -r  dirsource dirtarget</p>
+</li>
+<li><p>移动目录 : mv -r dirsource dirtarget</p>
+</li>
+</ul>
+<h2 id="文件操作"><a href="#文件操作" class="headerlink" title="文件操作"></a>文件操作</h2><ul>
+<li><p>查看文件内容 </p>
+<p>cat filename (查看文件内容、创建文件、文件合并、追加文件内容 等功能)</p>
+<p>more filename (分屏显示文件内容，每次只显示一页内容)</p>
+<ul>
+<li>空格键    显示手册页的下一屏<br>   Enter 键    一次滚动手册页的一行<br>   b    回滚一屏<br>   f    前滚一屏<br>   q    退出<br>   /word    搜索 word 字符串</li>
+</ul>
+</li>
+<li><p><strong>创建文件</strong> : touch filename </p>
+</li>
+<li><p>删除文件 : rm -f  filename </p>
+</li>
+<li><p>拷贝目录 : cp  filesource filetarget</p>
+</li>
+<li><p>移动目录 : mv filesource filetarget</p>
+</li>
+<li><p>文本搜索 : grep</p>
+<ul>
+<li>-n    显示匹配行及行号<br>   -v    显示不包含匹配文本的所有行（相当于求反）<br>   -i    忽略大小写</li>
+</ul>
+</li>
+<li><p>常用的两种模式查找\</p>
+<ul>
+<li>^a    行首，搜寻以 a 开头的行<br>   ke$    行尾，搜寻以 ke 结束的行</li>
+</ul>
+</li>
+</ul>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><ul>
+<li><p>echo 会在终端中显示参数指定的文字</p>
+</li>
+<li><p><strong>重定向 &gt; 和 &gt;&gt;</strong></p>
+<ul>
+<li>> 表示输出，会覆盖文件原有的内容</li>
+<li>>&gt; 表示追加，会将内容追加到已有文件的末尾</li>
+</ul>
+</li>
+<li><p><strong>管道 |</strong></p>
+<p>一个命令的输出 可以通过管道 做为 另一个命令的输入</p>
+<p>常用的管道命令有：<br>more：分屏显示内容<br>grep：在命令执行结果的基础上查询指定的文本</p>
+</li>
+</ul>
+<h1 id="远程管理常用命令"><a href="#远程管理常用命令" class="headerlink" title="远程管理常用命令"></a>远程管理常用命令</h1><ul>
+<li><p>关机/重启</p>
+<ul>
+<li><p>shutdown 选项 时间 : 关机</p>
+<p>选项    含义<br>-r    重新启动</p>
+</li>
+<li><p><strong>halt</strong> 关机</p>
+</li>
+</ul>
+</li>
+<li><p>查看或配置网卡信息</p>
+<ul>
+<li>ifconfig</li>
+<li>ping</li>
+</ul>
+</li>
+<li><p>远程登录</p>
+<ul>
+<li>ssh 用户名@ip</li>
+</ul>
+</li>
+<li><p>复制文件</p>
+<ul>
+<li>scp</li>
+</ul>
+</li>
+</ul>
+<h1 id="用户权限"><a href="#用户权限" class="headerlink" title="用户权限"></a>用户权限</h1><ul>
+<li><p>基本概念</p>
+<p>序号    权限        英文        缩写        数字代号<br>01        读            read        r            4<br>02        写            write        w            2<br>03        执行        excute        x            1</p>
+</li>
+<li><p>组<br>为了方便用户管理，提出了 组 的概念<br>在实际应用中，可以预先针对 组 设置好权限，<br>然后 将不同的用户添加到对应的组中，从而不用依次为每一个用户设置权限</p>
+</li>
+<li><p><strong>切换用户  su username</strong></p>
+</li>
+<li><p>退出 exit</p>
+</li>
+<li><p><strong>修改文件权限</strong></p>
+<p>​    序号    命令        作用</p>
+<pre><code>01            chown             修改拥有者
+02            chgrp             修改组
+03            chmod             修改权限
+</code></pre><p>ex. chmod 修改 用户／组 对 文件／目录 的权限</p>
+<p>​    chmod -rwx 文件名|目录名</p>
+<ul>
+<li><p>递归修改文件|目录的组</p>
+<p> chgrp -R 组名 文件名|目录名</p>
+</li>
+<li><p>递归修改文件权限</p>
+<p>chmod -R 755 文件名|目录名</p>
+<p><img src="picture\权限.jpg" alt></p>
+<p><img src="http://ww1.sinaimg.cn/large/007KrspHly1g69lxqc2jsj30bc03wt8v.jpg" alt></p>
+</li>
+</ul>
+</li>
+<li><p>sudo </p>
+<p>sudo 命令用来以其他身份来执行命令，预设的身份为 root.</p>
+<p>使用 sudo 时，必须先输入密码，之后有 5 分钟的有效期限.</p>
+</li>
+<li><p>组管理</p>
+<ul>
+<li>添加组 : groupadd 组名    </li>
+<li>删除组 : groupdel 组名<br>   确认组信息 : cat /etc/group    </li>
+<li>递归修改文件/目录的所属组 : chgrp -R 组名 文件/目录名</li>
+</ul>
+</li>
+<li><p>用户管理</p>
+<ul>
+<li><p><strong>添加新用户</strong> : useradd -m -g 组 新建用户名</p>
+<p>-m 自动建立home目录</p>
+<p>-g 指定用户所在的组</p>
+</li>
+<li><p><strong>设置用户密码</strong> : passwd 用户名</p>
+</li>
+<li><p>删除用户 : userdel -r 用户名</p>
+<p>-r 选项会自动删除用户家目录</p>
+</li>
+<li><p>确认用户信息 cat /etc/passwd | grep 用户名</p>
+<p>新建用户后，用户信息会保存在 /etc/passwd 文件中</p>
+</li>
+<li><p><strong>查看用户信息</strong></p>
+<p>   who        查看当前所有登录的用户列表<br>whoami        查看当前登录用户的账户名</p>
+</li>
+<li><p>which 命令 ：查看执行命令所在位置</p>
+<p>ex. which ls</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="系统信息"><a href="#系统信息" class="headerlink" title="系统信息"></a>系统信息</h1><ul>
+<li><p>时间和日期</p>
+<ul>
+<li>date    查看系统时间</li>
+<li>cal / calendar 查看日历，-y 选项可以查看一年的日历</li>
+</ul>
+</li>
+<li><p>磁盘和目录空间</p>
+<ul>
+<li><p>df ：disk free 显示磁盘剩余空间</p>
+<p>df -h</p>
+</li>
+<li><p>du：disk usage 显示目录下的文件大小</p>
+<p>du -h [目录名]</p>
+</li>
+</ul>
+</li>
+<li><p><strong>进程信息</strong>：</p>
+<ul>
+<li><p>找出占用端口进程的pid</p>
+<p>lsof -i:port</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>ps : process status 查看进程的详细状况</p>
+<ul>
+<li><p><strong>ps aux</strong></p>
+<p>选项    含义<br>a    显示终端上的所有进程，包括其他用户的进程<br>u    显示进程的详细状态<br>x    显示没有控制终端的进程</p>
+</li>
+</ul>
+</li>
+<li><p><strong>top</strong> : 动态显示运行中的进程并且排序</p>
+</li>
+<li><p><strong>kill</strong></p>
+<ul>
+<li><p>kill [-9] 进程代号</p>
+<p>终止指定代号的进程，-9 表示强行终止</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="其他命令"><a href="#其他命令" class="headerlink" title="其他命令"></a>其他命令</h1><ul>
+<li><p>查找文件 ：find</p>
+<p>ex. find [路径] -name “*.py”</p>
+<p>查找指定路径下扩展名是 .py 的文件，包括子目录</p>
+<p>如果省略路径，表示在当前文件夹下查找</p>
+</li>
+<li><p>软链接 通俗的方式讲类似于 Windows 下的快捷方式</p>
+<p>ln -s 被链接的源文件 链接文件</p>
+<p>注意: </p>
+<ul>
+<li>没有 -s 选项建立的是一个 硬链接文件</li>
+<li>源文件要使用绝对路径，不能使用相对路径</li>
+</ul>
+<p>ln -snf 被链接的源文件 链接文件   –更改软连接</p>
+</li>
+<li><p>打包和压缩</p>
+<p>不同操作系统中，常用的打包压缩方式是不同的。</p>
+<ul>
+<li>Windows 常用 rar</li>
+<li>Mac 常用 zip</li>
+<li>Linux 常用 tar.gz</li>
+</ul>
+<p><strong>打包 ／ 解包</strong>（含压缩）</p>
+<ul>
+<li><p><strong>打包文件</strong></p>
+<p>tar czf 压缩文件名 要压缩的文件夹</p>
+<p>ex. tar czf test.tar.gz ./opt/</p>
+</li>
+<li><p><strong>解包文件</strong>（-C参数 表示更换目录的意思 ）</p>
+<p>tar -zxf 待解压文件 -C 解压到的文件夹</p>
+<p>ex. tar -zxf test.tar.gz -C /opt/module/</p>
+</li>
+<li><p>tar 选项说明<br>选项    含义<br>c    生成档案文件，创建打包文件<br>x    解开档案文件<br>v    列出归档解档的详细过程，显示进度<br>f       指定文件名，f 后面一定是 .tar 文件，必须放选项最后</p>
+<p>z       调用 gzip, 实现压缩和解压缩的功能</p>
+</li>
+</ul>
+</li>
+<li><p>软件安装</p>
+<p>apt 是 Advanced Packaging Tool，是 Linux 下的一款安装包管理工具</p>
+<ul>
+<li>安装软件 apt-get install 软件包</li>
+<li>卸载软件 apt-get remove 软件名</li>
+<li>更新已安装的包 apt-get upgrade </li>
+</ul>
+<p>配置软件源</p>
+<ul>
+<li><p>在软件和更新中，选项ubuntu软件</p>
+<p>设置下载自：<a href="http://mirrors.aliyun.com/ubuntu" target="_blank" rel="noopener">http://mirrors.aliyun.com/ubuntu</a></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="vi-编辑"><a href="#vi-编辑" class="headerlink" title="vi 编辑"></a>vi 编辑</h1><p>很多 Linux 发行版中，直接把 vi 做成 vim 的软连接</p>
+<ul>
+<li><p>查询软连接命令（知道）</p>
+<p>$ which vi</p>
+</li>
+<li><p>打开和新建文件</p>
+<p>vi filename</p>
+<ul>
+<li>如果文件已经存在，会直接打开该文件</li>
+<li>如果文件不存在，会新建一个文件</li>
+</ul>
+</li>
+<li><p>光标上下左右</p>
+<p>h  j  k  l<br>左下右上</p>
+</li>
+<li><p>Vim编辑器三种模式</p>
+<ul>
+<li><p>命令模式：控制光标移动，可对文本进行复制、粘贴、删除和查找等工作。</p>
+</li>
+<li><p>输入模式：正常的文本录入。</p>
+</li>
+<li><p>末行模式：保存或退出文档，以及设置编辑环境。</p>
+<p><img src="picture\vim模式切换.jpg" alt="img"></p>
+<p><img src="http://ww1.sinaimg.cn/large/007KrspHly1g69lyhk9t9j30dr05kabx.jpg" alt></p>
+</li>
+<li><p>命令模式中最常用的一些命令</p>
+<ul>
+<li>dd    删除（剪切）光标所在整行<br>   5dd    删除（剪切）从光标处开始的5行<br>   yy    复制光标所在整行<br>   5yy    复制从光标处开始的5行<br>   u    撤销上一步的操作<br>   <strong>p</strong>    将之前删除（dd）或复制（yy）过的数据粘贴到光标后面</li>
+<li>shirft+g  跳转到最后一行</li>
+</ul>
+</li>
+<li><p>末行模式常用的一些命令</p>
+<ul>
+<li>:q!    强制退出（放弃对文档的修改内容）<br>   :wq!    强制保存退出<br>   :set nu    显示行号<br>   :set nonu    不显示行号<br>   :s/one/two    将当前光标所在行的第一个one替换成two<br>   :s/one/two/g    将当前光标所在行的所有one替换成two<br>   :%s/one/two/g    将全文中的所有one替换成two<br>   ?字符串    在文本中从下至上搜索该字符串<br>   /字符串    在文本中从上至下搜索该字符串</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : GODBMW <br>
+        
+        原文链接 : <a href>https://github.com/fenghuayangyi/2019/06/12/Linux/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/linux/">
+              #linux
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2019/04/12/高级变量类型/" target="_self">高级变量类型</a>
+      </div>
+    
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Made With 💗 | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2018, 1, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>
