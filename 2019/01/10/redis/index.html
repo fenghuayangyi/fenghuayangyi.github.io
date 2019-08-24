@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Redis入门(基本操作) | shaohua&#39;s blog</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Nosql,Redis,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">Fenghuayangyi</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path>
+          
+            <a href="javascript:void(0);" v-else>抓到我</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://github.com/fenghuayangyi" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://blog.csdn.net/u011295626" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Redis入门(基本操作)</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-01-10
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/Nosql/">
+            Nosql
+          </a>
+      </span>
+    
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="初识redis"><a href="#初识redis" class="headerlink" title="初识redis"></a>初识redis</h2><h3 id="nosql介绍"><a href="#nosql介绍" class="headerlink" title="nosql介绍"></a>nosql介绍</h3><p> NoSQL：一类新出现的数据库(not only sql)，特点：</p>
+<ul>
+<li>不支持SQL语法</li>
+<li>存储结构跟传统关系型数据库中的那种关系表完全不同，nosql中存储的数据都是KV形式</li>
+<li>NoSQL的世界中没有一种通用的语言，每种nosql数据库都有自己的api和语法，以及擅长的业务场景</li>
+<li>NoSQL中的产品种类相当多：<ul>
+<li>Mongodb</li>
+<li>Redis</li>
+<li>Hbase hadoop</li>
+</ul>
+</li>
+<li>NoSQL和SQL数据库的比较：<ul>
+<li>适用场景不同：sql数据库适合用于关系特别复杂的数据查询场景，nosql反之</li>
+<li>“事务”特性的支持：sql对事务的支持非常完善，而nosql基本不支持事务</li>
+<li>两者在不断地取长补短，呈现融合趋势</li>
+</ul>
+</li>
+</ul>
+<h2 id="Redis简介"><a href="#Redis简介" class="headerlink" title="Redis简介"></a>Redis简介</h2><p>Redis是一个开源的使用ANSI C语言编写、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库，并提供多种语言的API。</p>
+<p>Redis是 NoSQL技术阵营中的一员，它通过多种键值数据类型来适应不同场景下的存储需求，可以胜任，如缓存、队列系统的不同角色。</p>
+<h3 id="Redis特性"><a href="#Redis特性" class="headerlink" title="Redis特性"></a>Redis特性</h3><p>Redis 与其他 key - value 缓存产品有以下三个特点：</p>
+<ul>
+<li>支持数据的持久化，可以将内存中的数据保存在磁盘中，重启的时候可以再次加载进行使用。</li>
+<li>不仅仅支持简单的key-value类型的数据，同时还提供list，set，zset，hash等数据结构的存储。</li>
+<li>支持数据的备份（集群模式），即master-slave模式的数据备份。</li>
+</ul>
+<h3 id="Redis-优势"><a href="#Redis-优势" class="headerlink" title="Redis 优势"></a>Redis 优势</h3><ul>
+<li>性能极高，读写速度极快。</li>
+<li>丰富的数据类型。支持Strings, Lists, Hashes, Sets 及 Ordered Sets 数据类型操作。</li>
+<li>原子操作 – Redis的所有操作都是原子性的，同时Redis还支持对几个操作全并后的原子性执行。</li>
+<li>丰富的特性。通知, key 过期等。</li>
+</ul>
+<h3 id="Redis应用场景"><a href="#Redis应用场景" class="headerlink" title="Redis应用场景"></a>Redis应用场景</h3><ul>
+<li>用来做缓存(ehcache/memcached)——redis的所有数据是放在内存中的（内存数据库）</li>
+<li>在某些特定应用场景下替代传统数据库——比如社交类的应用</li>
+<li>在一些大型系统中，巧妙地实现一些特定的功能：session共享、购物车</li>
+</ul>
+<h2 id="Redis安装"><a href="#Redis安装" class="headerlink" title="Redis安装"></a>Redis安装</h2><h3 id="方法1：源码编译"><a href="#方法1：源码编译" class="headerlink" title="方法1：源码编译"></a>方法1：源码编译</h3><ol>
+<li><p>下载</p>
+<p>wget <a href="http://download.redis.io/releases/redis-3.2.8.tar.gz" target="_blank" rel="noopener">http://download.redis.io/releases/redis-3.2.8.tar.gz</a></p>
+</li>
+<li><p>解压</p>
+<p>tar -zxvf redis-3.2.8.tar.gz</p>
+</li>
+<li><p>复制，放到opt/⽬录下</p>
+<p>sudo mv ./redis-3.2.8 /opt/redis/</p>
+</li>
+<li><p>进⼊redis⽬录 </p>
+<p>cd /opt/redis/</p>
+</li>
+<li><p>生成</p>
+<p>sudo make</p>
+</li>
+<li><p>测试—时间会较⻓</p>
+<p>sudo make test</p>
+</li>
+<li><p>安装, 将redis的命令安装到/usr/local/redis/⽬录</p>
+<p>sudo make install PREFIX=/usr/local/redis</p>
+</li>
+<li><p>安装完成, 进入目录/usr/local/redis中查看</p>
+<blockquote>
+<p> cd /usr/local/redis</p>
+</blockquote>
+<blockquote>
+<p> ll</p>
+</blockquote>
+<ul>
+<li>redis-server redis服务器</li>
+<li>redis-cli redis命令行客户端</li>
+<li>redis-benchmark redis性能测试工具</li>
+<li>redis-check-aof AOF文件修复工具</li>
+<li>redis-check-rdb RDB文件检索工具</li>
+</ul>
+</li>
+<li><p>配置⽂件，移动到/etc/⽬录下</p>
+<p>sudo cp /opt/redis/redis.conf /etc/redis/</p>
+</li>
+</ol>
+<h3 id="apt安装"><a href="#apt安装" class="headerlink" title="apt安装"></a>apt安装</h3><ol>
+<li><p>sudo apt-get update</p>
+</li>
+<li><p>sudo  apt-get install redis-server </p>
+</li>
+<li><p>service  redis status –查看redis服务的状态为running，说明安装完成系统自动启动了服务</p>
+</li>
+</ol>
+<h3 id="配置redis"><a href="#配置redis" class="headerlink" title="配置redis"></a>配置redis</h3><ul>
+<li><p>cd /etc/redis/redis.conf</p>
+<p>开启远程连接：注释掉  127.0.0.1   #bind 127.0.0.1</p>
+<p>设置密码 : 添加  requirepass 123456（密码设置为123456）</p>
+</li>
+</ul>
+<ul>
+<li><p>重启redis服务</p>
+<p>  停止/启动/重启redis</p>
+<blockquote>
+<p> /etc/init.d/redis-server stop </p>
+</blockquote>
+<blockquote>
+<p>/etc/init.d/redis-server start </p>
+</blockquote>
+<blockquote>
+<p> /etc/init.d/redis-server restart</p>
+</blockquote>
+</li>
+<li><p>核心配置选项</p>
+<ul>
+<li><p>绑定ip：如果需要远程访问，可将此⾏注释，或绑定⼀个真实ip</p>
+<blockquote>
+<p>bind 127.0.0.1</p>
+</blockquote>
+</li>
+<li><p>端⼝，默认为6379</p>
+<blockquote>
+<p>port 6379</p>
+</blockquote>
+</li>
+<li><p>是否以守护进程运⾏</p>
+<ul>
+<li>如果以守护进程运⾏，则不会在命令⾏阻塞，类似于服务</li>
+<li>如果以⾮守护进程运⾏，则当前终端被阻塞</li>
+<li>设置为yes表示守护进程，设置为no表示⾮守护进程</li>
+<li>推荐设置为yes</li>
+</ul>
+<blockquote>
+<p>daemonize yes</p>
+</blockquote>
+</li>
+<li><p>数据⽂件</p>
+<blockquote>
+<p>dbfilename dump.rdb</p>
+</blockquote>
+</li>
+<li><p>数据⽂件存储路径</p>
+<blockquote>
+<p>dir /var/lib/redis</p>
+</blockquote>
+</li>
+<li><p>⽇志⽂件</p>
+<blockquote>
+<p>logfile /var/log/redis/redis-server.log</p>
+</blockquote>
+</li>
+<li><p>数据库，默认有16个</p>
+<blockquote>
+<p>database 16</p>
+</blockquote>
+</li>
+<li><p>主从复制，类似于双机备份。</p>
+<blockquote>
+<p>slaveof</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="测试redis服务"><a href="#测试redis服务" class="headerlink" title="测试redis服务"></a>测试redis服务</h3><ul>
+<li><p>服务端测试</p>
+<ol>
+<li>redis-cli   打开redis客户端</li>
+<li>auth 123456–先验证身份</li>
+<li>set a “sss” </li>
+<li>get a</li>
+</ol>
+</li>
+<li><p>测试远程登录</p>
+<p>本地window打开一个客户端  ,cd到redis安装的目录，主要是要有redis-cli.exe的目录</p>
+<ol>
+<li>redis-cli -h redis服务器IP -p redis服务端口号(默认6379)</li>
+<li>auth 123456–先验证身份</li>
+<li>set a “sss” </li>
+<li>get a</li>
+</ol>
+</li>
+</ul>
+<h2 id="服务器端和客户端"><a href="#服务器端和客户端" class="headerlink" title="服务器端和客户端"></a>服务器端和客户端</h2><h4 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h4><p>Redis服务器负责与多个客户端建立网络连接，处理客户端发送的命令    请求，在数据库中保存客户端执行命令所产生的数据，并通过资源管理来维持服务器自身的运转。<strong>服务器可以接受外来客户端的网络连接</strong>。</p>
+<ul>
+<li><p>服务器端的命令为redis-server</p>
+</li>
+<li><p>可以使⽤help查看帮助⽂档</p>
+<blockquote>
+<p>redis-server –help</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>推荐使⽤服务的⽅式管理redis服务</p>
+<ul>
+<li><p>启动</p>
+<blockquote>
+<p> sudo service redis start</p>
+</blockquote>
+</li>
+<li><p>停⽌</p>
+<blockquote>
+<p> sudo service redis stop</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>重启 sudo service redis restart</p>
+</li>
+<li><p>推荐</p>
+<blockquote>
+<p>ps -ef|grep redis 查看redis服务器进程<br>sudo kill -9 pid 杀死redis服务器<br>sudo redis-server /etc/redis/redis.conf 指定加载的配置文件</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h4><ul>
+<li><p>客户端的命令</p>
+<blockquote>
+<p> redis-cli</p>
+</blockquote>
+</li>
+<li><p>可以使⽤help查看帮助⽂档</p>
+<blockquote>
+<p>redis-cli –help</p>
+</blockquote>
+</li>
+<li><p>连接redis</p>
+<blockquote>
+<p>redis-cli</p>
+</blockquote>
+</li>
+<li><p>切换到数据库n</p>
+<p>数据库没有名称，默认有16个，通过0-15来标识，连接redis默认选择第一个数据库</p>
+<blockquote>
+<p>select n</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="数据操作"><a href="#数据操作" class="headerlink" title="数据操作"></a>数据操作</h2><h4 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h4><ul>
+<li>redis是key-value的数据结构，每条数据都是⼀个键值对</li>
+<li>键的类型是字符串</li>
+<li>注意：键不能重复</li>
+</ul>
+<p><img src="http://ww1.sinaimg.cn/large/007KrspHly1g6ak751vr3j30f309sjs7.jpg" alt></p>
+<ul>
+<li><p>值的类型分为五种：</p>
+<ul>
+<li>字符串string</li>
+<li>哈希hash</li>
+<li>列表list</li>
+<li>集合set</li>
+<li>有序集合zset</li>
+</ul>
+</li>
+<li><h1 id="数据操作行为"><a href="#数据操作行为" class="headerlink" title="数据操作行为"></a>数据操作行为</h1><ul>
+<li>保存</li>
+<li>修改</li>
+<li>获取</li>
+<li>删除</li>
+</ul>
+</li>
+</ul>
+<h4 id="键命令"><a href="#键命令" class="headerlink" title="键命令"></a>键命令</h4><ul>
+<li><p>查找键</p>
+<blockquote>
+<p>keys pattern</p>
+<ul>
+<li>查看所有键: keys *</li>
+<li>查看名称中包含a的键: keys ‘a*’</li>
+</ul>
+</blockquote>
+</li>
+<li><p>判断键是否存在</p>
+<blockquote>
+<p>exists key</p>
+</blockquote>
+</li>
+<li><p>查看键对应的value的类型</p>
+<blockquote>
+<p>type key</p>
+</blockquote>
+</li>
+<li><p>删除键及对应的值</p>
+<blockquote>
+<p>del key1 key2 …</p>
+</blockquote>
+</li>
+<li><p>设置过期时间，以秒为单位</p>
+<blockquote>
+<p>expire key seconds</p>
+</blockquote>
+</li>
+<li><p>查看有效时间，以秒为单位</p>
+<blockquote>
+<p>ttl key</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="string类型"><a href="#string类型" class="headerlink" title="string类型"></a>string类型</h4><p>​    字符串类型是Redis中最为基础的数据存储类型，在Redis中是二进制安全的。该类型可以接受任何格式的数据，如 JPEG图像数据或Json对象描述信息等。<strong>最多可以容纳的数据长度是512M</strong>。</p>
+<h5 id="保存"><a href="#保存" class="headerlink" title="保存"></a>保存</h5><ul>
+<li><p>设置键值</p>
+<blockquote>
+<p>set key value</p>
+</blockquote>
+</li>
+<li><p>设置键值及过期时间，以秒为单位</p>
+<blockquote>
+<p>setex key seconds value</p>
+</blockquote>
+<p>ex. set name 3 zhangsan</p>
+</li>
+<li><p>设置多个键值</p>
+<blockquote>
+<p>mset key1 value1 key2 value2 …</p>
+</blockquote>
+</li>
+<li><p>追加值—-向键中追加值</p>
+<blockquote>
+<p>append key value</p>
+</blockquote>
+</li>
+</ul>
+<h5 id="获取"><a href="#获取" class="headerlink" title="获取"></a>获取</h5><ul>
+<li><p>获取：根据键获取值，如果不存在此键则返回nil</p>
+<blockquote>
+<p>get key</p>
+</blockquote>
+</li>
+<li><p>根据多个键获取多个值</p>
+<blockquote>
+<p>mget key1 key2 …</p>
+</blockquote>
+</li>
+</ul>
+<h5 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h5><ul>
+<li>删除键时会将值删除</li>
+</ul>
+<h4 id="hash类型"><a href="#hash类型" class="headerlink" title="hash类型"></a>hash类型</h4><ul>
+<li>hash⽤于存储对象，对象的结构为<strong>属性、值</strong></li>
+<li>值的类型为string</li>
+</ul>
+<h5 id="增加、修改"><a href="#增加、修改" class="headerlink" title="增加、修改"></a>增加、修改</h5><ul>
+<li><p>设置单个属性</p>
+<blockquote>
+<p>hset key field value</p>
+</blockquote>
+<ul>
+<li><p>例1：设置键 user的属性name为itheima</p>
+</li>
+<li><p>hset user name itheima</p>
+</li>
+<li><p>报exxro:MISCONF Redis is configured to save RDB snapshots..</p>
+<p>Redis被配置为保存数据库快照，但它目前不能持久化到硬盘。用来修改集合数据的命令不能用。</p>
+<p>原因：强制关闭Redis快照导致不能持久化。 解决方案：</p>
+<ul>
+<li>redis中运行：config set stop-writes-on-bgsave-error no</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>设置多个属性</p>
+<blockquote>
+<p>hmset key field1 value1 field2 value2 …</p>
+</blockquote>
+</li>
+</ul>
+<h5 id="获取-1"><a href="#获取-1" class="headerlink" title="获取"></a>获取</h5><ul>
+<li><p>获取指定键所有的属性</p>
+<blockquote>
+<p>hkeys key</p>
+</blockquote>
+</li>
+<li><p>获取⼀个属性的值</p>
+<blockquote>
+<p>hget key field</p>
+</blockquote>
+</li>
+<li><p>获取多个属性的值</p>
+<blockquote>
+<p>hmget key field1 field2 …</p>
+</blockquote>
+</li>
+<li><p>获取所有属性的值</p>
+<blockquote>
+<p>hvals key</p>
+</blockquote>
+</li>
+</ul>
+<h5 id="删除-1"><a href="#删除-1" class="headerlink" title="删除"></a>删除</h5><ul>
+<li><p>删除整个hash键及值，使⽤del命令</p>
+<blockquote>
+<p>del key</p>
+</blockquote>
+</li>
+<li><p>删除属性，属性对应的值会被⼀起删除</p>
+<blockquote>
+<p>hdel key field1 field2 …</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="list类型"><a href="#list类型" class="headerlink" title="list类型"></a>list类型</h4><ul>
+<li>列表的元素类型为string</li>
+<li>按照插⼊顺序排序</li>
+</ul>
+<h5 id="获取-2"><a href="#获取-2" class="headerlink" title="获取"></a>获取</h5><ul>
+<li><p>返回列表⾥指定范围内的元素</p>
+<ul>
+<li>start、stop为元素的下标索引</li>
+<li>索引从左侧开始，第⼀个元素为0</li>
+<li>索引可以是负数，表示从尾部开始计数，如-1表示最后⼀个元素</li>
+</ul>
+<blockquote>
+<p>lrange key start stop</p>
+</blockquote>
+</li>
+<li><p>例4：获取键为’a1’的列表所有元素</p>
+<blockquote>
+<p>lrange a1 0 -1</p>
+</blockquote>
+</li>
+</ul>
+<h5 id="增加"><a href="#增加" class="headerlink" title="增加"></a>增加</h5><ul>
+<li><p>在左侧插⼊数据</p>
+<blockquote>
+<p>lpush key value1 value2 …</p>
+</blockquote>
+<ul>
+<li><p>例1：从键为’a1’的列表左侧加⼊数据a 、 b 、c</p>
+<blockquote>
+<p>lpush a1 a b c</p>
+<p>lrange a1 0 3</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>在右侧插⼊数据</p>
+<blockquote>
+<p>rpush key value1 value2 …</p>
+</blockquote>
+<ul>
+<li><p>例2：从键为’a1’的列表右侧加⼊数据0 1</p>
+<blockquote>
+<p>rpush a1 0 1</p>
+<p>lrange a1 0 5</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>在指定元素的前或后插⼊新元素</p>
+<blockquote>
+<p>linsert key before或after 现有元素 新元素</p>
+</blockquote>
+<ul>
+<li><p>例3：在键为’a1’的列表中元素’b’前加⼊’3’</p>
+<blockquote>
+<p>linsert a1 before b 3</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="修改"><a href="#修改" class="headerlink" title="修改"></a>修改</h5><ul>
+<li><p>设置指定索引位置的值</p>
+<ul>
+<li><p>索引从左侧开始，第⼀个元素为0</p>
+</li>
+<li><p>索引可以是负数，表示尾部开始计数，如-1表示最后⼀个元素</p>
+</li>
+</ul>
+<blockquote>
+<p>lset key index value</p>
+</blockquote>
+<ul>
+<li><p>例5：修改键为’a1’的列表中下标为1的元素值为’z’</p>
+<blockquote>
+<p>lset a 1 z</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="删除-2"><a href="#删除-2" class="headerlink" title="删除"></a>删除</h5><ul>
+<li><p>删除指定元素</p>
+<ul>
+<li>将列表中<strong>前count次出现的值为value的元素移除</strong></li>
+<li>count &gt; 0: 从头往尾移除</li>
+<li>count &lt; 0: 从尾往头移除</li>
+<li>count = 0: 移除所有</li>
+</ul>
+<blockquote>
+<p>lrem key count value</p>
+</blockquote>
+<ul>
+<li><p>例6.1：向列表’a2’中加⼊元素’a’、’b’、’a’、’b’、’a’、’b’</p>
+<blockquote>
+<p>lpush a2 a b a b a b</p>
+</blockquote>
+</li>
+<li><p>例6.2：从’a2’列表右侧开始删除2个’b’</p>
+<blockquote>
+<p>lrem a2 -2 b</p>
+</blockquote>
+</li>
+<li><p>例6.3：查看列表’py12’的所有元素</p>
+<blockquote>
+<p>lrange a2 0 -1</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="set类型"><a href="#set类型" class="headerlink" title="set类型"></a>set类型</h4><ul>
+<li>⽆序集合</li>
+<li>元素为string类型</li>
+<li>元素具有唯⼀性，不重复</li>
+<li><strong>说明：对于集合没有修改操作</strong></li>
+</ul>
+<p>#####　增加</p>
+<ul>
+<li><p>添加元素</p>
+<blockquote>
+<p>sadd key member1 member2 …</p>
+</blockquote>
+<ul>
+<li><p>例1：向键’a3’的集合中添加元素’zhangsan’、’lisi’、’wangwu’</p>
+<blockquote>
+<p>sadd a3 zhangsan sili wangwu</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="获取-3"><a href="#获取-3" class="headerlink" title="获取"></a>获取</h5><ul>
+<li><p>删除指定元素</p>
+<blockquote>
+<p>srem key</p>
+</blockquote>
+<ul>
+<li><p>例3：删除键’a3’的集合中元素’wangwu’</p>
+<blockquote>
+<p>srem a3 wangwu</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="zet类型"><a href="#zet类型" class="headerlink" title="zet类型"></a>zet类型</h4><ul>
+<li>sorted set，有序集合</li>
+<li>元素为string类型</li>
+<li>元素具有唯⼀性，不重复</li>
+<li><strong>每个元素都会关联⼀个double类型的score，表示权重，通过权重将元素从⼩到⼤排序</strong></li>
+<li><strong>说明：没有修改操作</strong></li>
+</ul>
+<h5 id="增加-1"><a href="#增加-1" class="headerlink" title="增加"></a>增加</h5><ul>
+<li><p>添加</p>
+<blockquote>
+<p>zadd key score1 member1 score2 member2 …</p>
+</blockquote>
+</li>
+<li><p>例1：向键’a4’的集合中添加元素’lisi’、’wangwu’、’zhaoliu’、’zhangsan’，权重分别为4、5、6、3</p>
+<blockquote>
+<p>zadd a4 4 lisi 5 wangwu 6 zhaoliu 3 zhangsan</p>
+</blockquote>
+</li>
+</ul>
+<h5 id="获取-4"><a href="#获取-4" class="headerlink" title="获取"></a>获取</h5><ul>
+<li><p>返回指定范围内的元素</p>
+</li>
+<li><p>start、stop为元素的下标索引</p>
+</li>
+<li><p>索引从左侧开始，第⼀个元素为0</p>
+</li>
+<li><p>索引可以是负数，表示从尾部开始计数，如-1表示最后⼀个元素</p>
+<blockquote>
+<p>zrange key start stop</p>
+</blockquote>
+<ul>
+<li><p>例2：获取键’a4’的集合中所有元素</p>
+<blockquote>
+<p>zrange a4 0 -1</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>返回score值在min和max之间的成员</p>
+<blockquote>
+<p>zrangebyscore key min max</p>
+</blockquote>
+</li>
+<li><p>返回成员member的score值</p>
+<blockquote>
+<p>zscore key member</p>
+</blockquote>
+<ul>
+<li><p>例4：获取键’a4’的集合中元素’zhangsan’的权重</p>
+<blockquote>
+<p>zscore a4 zhangsan</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<p>#####　删除</p>
+<ul>
+<li><p>删除指定元素</p>
+<blockquote>
+<p> zrem key member1 member2 …</p>
+</blockquote>
+</li>
+<li><p>删除权重在指定范围的元素</p>
+<blockquote>
+<p>zremrangebyscore key min max</p>
+</blockquote>
+</li>
+</ul>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : fenghuayangyi <br>
+        
+        原文链接 : <a href>https://github.com/fenghuayangyi/2019/01/10/redis/</a><br>
+        版权声明 : 本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/Redis/">
+              #Redis
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2018/12/31/Linux Base/" target="_self">Linux 初学习</a>
+      </div>
+    
+    
+  </nav>
+
+   
+
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2018, 11, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>
