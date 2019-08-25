@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>shaohua&#39;s blog</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="linux,linux基础,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">Fenghuayangyi</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path>
+          
+            <a href="javascript:void(0);" v-else>抓到我</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://github.com/fenghuayangyi" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://blog.csdn.net/u011295626" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span></span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-02-03
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/linux/">
+            linux
+          </a>
+      </span>
+    
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Shell是一个命令行解释器，它为用户提供了一个向Linux内核发送请求以便运行程序的界面系统级程序。</p>
+<p>用户可以用Shell来启动、挂起、停止甚至是编写一些程序。</p>
+<p><img src="http://ww1.sinaimg.cn/large/007KrspHly1g6brhetw01j30a207rq2v.jpg" alt></p>
+<ul>
+<li>Shell还是一个<strong>功能相当强大的编程语言</strong>，易编写、易调试、灵活性强。</li>
+<li>Shell是解释执行的脚本语言，在Shell中可以调用Linux系统命令。</li>
+</ul>
+<h2 id="shell脚本的执行方式"><a href="#shell脚本的执行方式" class="headerlink" title="shell脚本的执行方式"></a>shell脚本的执行方式</h2><ul>
+<li><p>echo输出内容到控制台</p>
+<ul>
+<li><p>基本语法：</p>
+<p>echo [选项][输出内容]</p>
+<p>选项：-e： 支持反斜线控制的字符转换</p>
+<p>| 控制字符 | 作用                                                         |<br>| ——– | ———————————————————— |<br>| \ \      | 输出\本身                                                    |<br>| \a       | 输出警告音                                                   |<br>| \b       | 退格键，也就是向左删除键                                     |<br>| \c       | 取消输出行末的换行符。和“-n”选项一致                         |<br>| \e       | ESCAPE键                                                     |<br>| \f       | 换页符                                                       |<br>| \n       | 换行符                                                       |<br>| \r       | 回车键                                                       |<br>| \t       | 制表符，也就是Tab键                                          |<br>| \v       | 垂直制表符                                                   |<br>| \0nnn    | 按照八进制ASCII码表输出字符。其中0为数字零，nnn是三位八进制数 |<br>| \xhh     | 按照十六进制ASCII码表输出字符。其中hh是两位十六进制数        |</p>
+</li>
+<li><p>案例</p>
+<blockquote>
+<p>echo “helloworld” –输出helloworld</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>脚本格式</p>
+<ol>
+<li>脚本以  #!/bin/bash  开头</li>
+<li>脚本必须有可执行权限</li>
+</ol>
+</li>
+<li><p>第一个shell脚本 helloworld.sh</p>
+<p>touch /opt/shellcode/helloworld.sh</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash   </span><br><span class="line">echo "helloworld"</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>脚本的常用执行方式</p>
+<ol>
+<li><p>输入脚本的绝对路径或相对路径</p>
+<ol>
+<li><p>赋予helloworld.sh 脚本的+x权限</p>
+<p>chmod 777 helloworld.sh</p>
+</li>
+<li><p>执行脚本</p>
+<ul>
+<li>/opt/shellcode/helloWorld.sh</li>
+<li>./helloWorld.sh</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>bash或sh+脚本（不用赋予脚本+x权限）</p>
+<ul>
+<li>sh /root/helloWorld.sh</li>
+<li>sh helloWorld.sh</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<h2 id="shell中的变量"><a href="#shell中的变量" class="headerlink" title="shell中的变量"></a>shell中的变量</h2><p>​    1）Linux Shell中的变量分为，系统变量和用户自定义变量。</p>
+<p>​    2）系统变量：\$HOME、\$PWD、\$SHELL、\$USER等等</p>
+<p>​    3）显示当前shell中所有变量：set</p>
+<h3 id="定义变量"><a href="#定义变量" class="headerlink" title="定义变量"></a>定义变量</h3><ul>
+<li><p>基本语法：</p>
+<ol>
+<li>定义变量：变量=值</li>
+<li>撤销变量：unset 变量</li>
+<li>声明静态变量：readonly变量，注意：不能unset</li>
+</ol>
+</li>
+<li><p>变量定义规则</p>
+<ol>
+<li>变量名称可以由字母、数字和下划线组成，但是不能以数字开头。</li>
+<li><strong><em>等号两侧不能有空格</em></strong></li>
+<li>变量名称一般习惯为大写</li>
+</ol>
+</li>
+<li><p>案例</p>
+<ul>
+<li><p>定义变量A</p>
+<blockquote>
+<p>A=8               </p>
+</blockquote>
+</li>
+<li><p>撤销变量A</p>
+<blockquote>
+<p> unsetA       </p>
+</blockquote>
+</li>
+<li><p>声明静态的变量B=2，不能unset</p>
+<blockquote>
+<p> readonlyB=2  </p>
+</blockquote>
+</li>
+<li><p>可把变量提升为全局环境变量，可供其他shell程序使用</p>
+<blockquote>
+<p> export 变量名  </p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="将命令的返回值赋值给变量"><a href="#将命令的返回值赋值给变量" class="headerlink" title="将命令的返回值赋值给变量"></a>将命令的返回值赋值给变量</h3><ul>
+<li>A=`ls -la` 反引号，运行里面的命令，并把结果返回给变量A</li>
+<li>A=\$(ls -la) 等价于反引号</li>
+</ul>
+<h3 id="设置环境变量"><a href="#设置环境变量" class="headerlink" title="设置环境变量"></a>设置环境变量</h3><ul>
+<li><p>基本语法</p>
+<ol>
+<li>export 变量名=变量值 （功能描述：设置环境变量的值）</li>
+<li>source 配置文件                 （功能描述：让修改后的配置信息立即生效）</li>
+<li>echo $变量名               （功能描述：查询环境变量的值）</li>
+</ol>
+</li>
+<li><p>案例</p>
+<ol>
+<li><p>在/etc/profile文件中定义JAVA_HOME环境变量</p>
+<ul>
+<li>export JAVA_HOME=/opt/module/jdk1.8.0_144</li>
+<li>export PATH=$PATH:$JAVA_HOME/bin</li>
+</ul>
+</li>
+<li><p>查看环境变量JAVA_HOME的值</p>
+<blockquote>
+<p>echo $JAVA_HOME</p>
+</blockquote>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="设置位置变量"><a href="#设置位置变量" class="headerlink" title="设置位置变量"></a>设置位置变量</h3><ul>
+<li><p>基本语法</p>
+<ul>
+<li>\$n    （功能描述：n为数字，\$0代表命令本身，\$1-\$9代表第一到第九个参数，十以上的参数需要用大括号包含，如\${10}）</li>
+<li>\$<em>    （功能描述：这个变量代表命令行中所有的参数，\$</em>把所有的参数看成一个整体）</li>
+<li>\$@   （功能描述：这个变量也代表命令行中所有的参数，不过\$@把每个参数区分对待）</li>
+<li>\$#   （功能描述：这个变量代表命令行中所有参数的个数）</li>
+</ul>
+</li>
+<li><p>案例</p>
+<ol>
+<li><p>输出 输入的参数1，参数2，所有参数，参数个数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line">echo "$0  $1   $2"</span><br><span class="line">echo "$*"</span><br><span class="line">echo "$@"</span><br><span class="line">echo "$#"</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>$*与$@的区别</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash </span><br><span class="line">for i in "$*" </span><br><span class="line"><span class="meta">#</span> $*中的所有参数看成是一个整体，所以这个for循环只会循环一次 </span><br><span class="line">        do </span><br><span class="line">                echo "The parameters is: $i" </span><br><span class="line">        done </span><br><span class="line">x=1 </span><br><span class="line">for y in "$@" </span><br><span class="line"><span class="meta">#</span> $@中的每个参数都看成是独立的，所以“$@”中有几个参数，就会循环几次 </span><br><span class="line">        do </span><br><span class="line">                echo "The parameter$x is: $y" </span><br><span class="line">                x=$(( $x +1 )) </span><br><span class="line">        done</span><br></pre></td></tr></table></figure>
+<ul>
+<li>\$*和\$@都表示传递给函数或脚本的所有参数，不被双引号“ ”包含时，都以\$1 \$2 …\$n的形式输出所有参数。</li>
+<li>当它们被双引号“ ”包含时，“\$*”会将所有的参数作为一个整体，以“\$1 \$2<br>…\$n” 的形式输出所有参数；“\$@”会将各个参数分开，以“\$1” “\$2”…”\$n”的形式输出所有参数。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="预定义变量"><a href="#预定义变量" class="headerlink" title="预定义变量"></a>预定义变量</h3><ul>
+<li><p>基本语法：</p>
+<ul>
+<li>$？         （功能描述：最后一次执行的命令的返回状态。如果这个变量的值为0，证明上一个命令正确执行；如果这个变量的值为非0（具体是哪个数，由命令自己来决定），则证明上一个命令执行不正确了。）</li>
+<li>\$\$           （功能描述：当前进程的进程号（PID））</li>
+<li>$!           （功能描述：后台运行的最后一个进程的进程号（PID））</li>
+</ul>
+</li>
+<li><p>案例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line">echo "$$"</span><br><span class="line">./helloworld.sh &amp;</span><br><span class="line">echo "$!"</span><br><span class="line">echo "$?"</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h3><ul>
+<li><p>基本语法：</p>
+<ol>
+<li>“\$((运算式))”或“\$[运算式]”</li>
+<li>expr m + n    –注意expr运算符间要有空格</li>
+<li>expr m - n</li>
+<li>expr  \*, /, %    乘，除，取余</li>
+</ol>
+</li>
+<li><p>案例：计算（2+3）X4的值</p>
+<ul>
+<li><p>采用$[运算式]方式</p>
+<blockquote>
+<p> S=$[(2+3)*4]</p>
+<p> echo $S</p>
+</blockquote>
+</li>
+<li><p>expr分布计算</p>
+<blockquote>
+<p>S=`expr 2 + 3`</p>
+<p> expr $S \* 4</p>
+</blockquote>
+</li>
+<li><p>expr一步完成计算</p>
+<blockquote>
+<p>expr `expr 2 + 3` \* 4</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="条件判断"><a href="#条件判断" class="headerlink" title="条件判断"></a>条件判断</h3><h4 id="判断语句"><a href="#判断语句" class="headerlink" title="判断语句"></a>判断语句</h4><ul>
+<li><p>基本语法：</p>
+<p>[ condition ]（注意condition前后要有空格）</p>
+<p>非空返回true，可使用$?验证（0为true，&gt;1为false）</p>
+</li>
+<li><p>案例：</p>
+<p>[ S ]       返回true</p>
+</li>
+</ul>
+<p>  []           返回false</p>
+<p>  [ condition ] &amp;&amp; echo OK || echo notok                      条件满足，执行后面的语句</p>
+<h4 id="常用判断条件"><a href="#常用判断条件" class="headerlink" title="常用判断条件"></a>常用判断条件</h4><ol>
+<li><p>两个整数之间比较</p>
+<blockquote>
+<p> = 字符串比较</p>
+</blockquote>
+<blockquote>
+<p> -lt 小于</p>
+</blockquote>
+<blockquote>
+<p> -le 小于等于</p>
+</blockquote>
+<blockquote>
+<p> -eq 等于</p>
+</blockquote>
+<blockquote>
+<p> -gt 大于</p>
+</blockquote>
+<blockquote>
+<p> -ge 大于等于</p>
+</blockquote>
+<blockquote>
+<p> -ne 不等于</p>
+</blockquote>
+</li>
+<li><p>按照文件权限进行判断</p>
+<blockquote>
+<p> -r 有读的权限</p>
+</blockquote>
+<blockquote>
+<p> -w 有写的权限</p>
+</blockquote>
+<blockquote>
+<p>-x 有执行的权限</p>
+</blockquote>
+</li>
+<li><p>按照文件类型进行判断</p>
+<blockquote>
+<p>-f 文件存在并且是一个常规的文件</p>
+</blockquote>
+<blockquote>
+<p>-e 文件存在</p>
+</blockquote>
+<blockquote>
+<p>-d 文件存在并是一个目录</p>
+</blockquote>
+</li>
+<li><p>案例</p>
+<ol>
+<li><p>23是否大于等于22</p>
+<blockquote>
+<p>[ 23 -ge 22 ]</p>
+</blockquote>
+</li>
+<li><p>student.txt是否具有写权限</p>
+<blockquote>
+<p>[ -w student.txt ]</p>
+</blockquote>
+</li>
+<li><p>/root/install.log目录中的文件是否存在</p>
+<blockquote>
+<p>[ -e /root/install.log ]</p>
+</blockquote>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="流程控制"><a href="#流程控制" class="headerlink" title="流程控制"></a>流程控制</h3><h4 id="if判断"><a href="#if判断" class="headerlink" title="if判断"></a>if判断</h4><ul>
+<li><p>基本语法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">if [ 条件判断式 ]</span><br><span class="line">then </span><br><span class="line">  程序 </span><br><span class="line">fi </span><br><span class="line">或者 </span><br><span class="line">if [ 条件判断式 ] </span><br><span class="line">  then </span><br><span class="line">    程序 </span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<p>注意事项：（1）[ 条件判断式 ]，中括号和条件判断式之间必须有空格</p>
+</li>
+<li><p>案例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line"></span><br><span class="line">if [ $1 -eq "123" ]</span><br><span class="line">then</span><br><span class="line">        echo "123"</span><br><span class="line">elif [ $1 -eq "456" ]</span><br><span class="line">then</span><br><span class="line">        echo "456"</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="case语句"><a href="#case语句" class="headerlink" title="case语句"></a>case语句</h4><ul>
+<li><p>基本语法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">case $变量名 in </span><br><span class="line">  "值1"） </span><br><span class="line">    如果变量的值等于值1，则执行程序1 </span><br><span class="line">    ;; </span><br><span class="line">  "值2"） </span><br><span class="line">    如果变量的值等于值2，则执行程序2 </span><br><span class="line">    ;; </span><br><span class="line">  …省略其他分支… </span><br><span class="line">  *） </span><br><span class="line">    如果变量的值都不是以上的值，则执行此程序 </span><br><span class="line">    ;; </span><br><span class="line">esac</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>案例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">!/bin/bash</span><br><span class="line"></span><br><span class="line">case $1 in</span><br><span class="line">"1")</span><br><span class="line">        echo "1"</span><br><span class="line">;;</span><br><span class="line"></span><br><span class="line">"2")</span><br><span class="line">        echo "2"</span><br><span class="line">;;</span><br><span class="line">*)</span><br><span class="line">        echo "other"</span><br><span class="line">;;</span><br><span class="line">esac</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="for循环"><a href="#for循环" class="headerlink" title="for循环"></a>for循环</h4><ul>
+<li><p>基本语法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">for 变量 in 值1 值2 值3… </span><br><span class="line">  do </span><br><span class="line">    程序 </span><br><span class="line">  done</span><br><span class="line"> 或者</span><br><span class="line"> for (( 初始值;循环控制条件;变量变化 )) </span><br><span class="line">  do </span><br><span class="line">    程序 </span><br><span class="line">  done</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>案例 –打印输出参数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line"><span class="meta">#</span>打印数字</span><br><span class="line"></span><br><span class="line">for i in "$*"</span><br><span class="line">    do</span><br><span class="line">      echo "The num is $i "</span><br><span class="line">    done</span><br><span class="line"></span><br><span class="line">for j in "$@"</span><br><span class="line">        do</span><br><span class="line">        echo "The num is $j"</span><br><span class="line">        done</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>案例 –  从1加到100</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line"></span><br><span class="line">s=0</span><br><span class="line">for((i=0;i&lt;=100;i++))</span><br><span class="line">do</span><br><span class="line">        s=$[$s+$i]</span><br><span class="line">done</span><br><span class="line">echo "$s"</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="while循环"><a href="#while循环" class="headerlink" title="while循环"></a>while循环</h4><ul>
+<li><p>基本语法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">while [ 条件判断式 ] </span><br><span class="line">  do </span><br><span class="line">    程序 </span><br><span class="line">  done</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>案例 –  从1加到100</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line">s=0</span><br><span class="line">i=1</span><br><span class="line">while [ $i -le 100 ]</span><br><span class="line">do</span><br><span class="line">        s=$[$s+$i]</span><br><span class="line">        i=$[$i+1]</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line">echo $s</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="read-读取控制台输入"><a href="#read-读取控制台输入" class="headerlink" title="read 读取控制台输入"></a>read 读取控制台输入</h4><ul>
+<li><p>基本语法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">read(选项)(参数)</span><br><span class="line">选项：</span><br><span class="line">-p：指定读取值时的提示符；</span><br><span class="line">-t：指定读取值时等待的时间（秒）。</span><br><span class="line"></span><br><span class="line">参数       </span><br><span class="line">变量：指定读取值的变量名</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>案例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line"></span><br><span class="line">read -t 7 -p "please 7 miao input your name " NAME</span><br><span class="line"></span><br><span class="line">echo $NAME</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h3><h4 id="系统函数"><a href="#系统函数" class="headerlink" title="系统函数"></a>系统函数</h4><ul>
+<li><p>basename基本语法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">basename [pathname] [suffix]		</span><br><span class="line">功能描述：basename命令会删掉所有的前缀包括最后一个（‘/’）字符，然后将字符串显示出来。</span><br><span class="line">选项：</span><br><span class="line">suffix为后缀，如果suffix被指定了，basename会将pathname或string中的suffix去掉。</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>案例</p>
+<blockquote>
+<p>basename /opt/test.txt</p>
+<p>basename /opt/test.txt .txt</p>
+</blockquote>
+</li>
+<li><p>dirname基本语法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dirname 文件绝对路径		</span><br><span class="line">功能描述：从给定的包含绝对路径的文件名中去除文件名（非目录的部分），然后返回剩下的路径（目录的部分）</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>案例</p>
+<blockquote>
+<p>dirname /opt/test.txt </p>
+</blockquote>
+</li>
+</ul>
+<h4 id="自定义函数"><a href="#自定义函数" class="headerlink" title="自定义函数"></a>自定义函数</h4><ul>
+<li><p>基本语法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[ function ] funname[()]</span><br><span class="line">&#123;</span><br><span class="line">	Action;</span><br><span class="line">	[return int;]</span><br><span class="line">&#125;</span><br><span class="line">	</span><br><span class="line">funname</span><br></pre></td></tr></table></figure>
+<p>注意：</p>
+<p>​       （1）必须在调用函数地方之前，先声明函数，shell脚本是逐行运行。不会像其它语言一样先编译。</p>
+<p>​       （2）函数返回值，只能通过$?系统变量获得，可以显示加：return返回，如果不加，将以最后一条命令运行结果，作为返回值。return后跟数值n(0-255)</p>
+</li>
+<li><p>案例 –计算输入参数的和</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line">function sum()</span><br><span class="line">&#123;</span><br><span class="line">    s=0</span><br><span class="line">    s=$[ $1 + $2 ]</span><br><span class="line">    echo "$s"</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">read -p "Please input the number1: " n1;</span><br><span class="line">read -p "Please input the number2: " n2;</span><br><span class="line">sum $n1 $n2;</span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+</ul>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : fenghuayangyi <br>
+        
+        原文链接 : <a href>https://github.com/fenghuayangyi/2019/02/03/Shell/</a><br>
+        版权声明 : 本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/linux基础/">
+              #linux基础
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2019/01/10/redis/" target="_self">Redis入门(基本操作)</a>
+      </div>
+    
+    
+  </nav>
+
+   
+
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2018, 11, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>
