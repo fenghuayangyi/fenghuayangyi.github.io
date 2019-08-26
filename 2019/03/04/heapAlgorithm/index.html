@@ -210,18 +210,26 @@
 <hr>
 <h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><h2 id="堆-1"><a href="#堆-1" class="headerlink" title=" 堆"></a><a name="10"> 堆</a></h2><h3 id="1-最小的k个数"><a href="#1-最小的k个数" class="headerlink" title="1.  最小的k个数"></a>1. <a name="10.1"> 最小的k个数</a></h3><ol>
 <li><p>题目表述</p>
-<p>​</p>
+<p>输入 n 个整数，找出其中最小的 k 个数。例如输入 4、5、1、6、2、7、3、8 这 8 个数字，则最小的 4 个数字是 1、2、3、4。</p>
 </li>
 </ol>
 <ol start="2">
 <li><p>解题思路</p>
-<p>​</p>
+<ul>
+<li>这里创建一个容量为 k 的最大堆。遍历给定数据集合，每次和堆顶元素进行比较，如果小于堆顶元素，则弹出堆顶元素，然后将当前元素放入堆。</li>
+<li>由于堆大小为 k，所以弹出、推入操作复杂度为：O(logK)。因为有 n 个，总体复杂度为：O(nLogK)。</li>
+<li>对比快排 partition 的思路，这种思路优点如下：<ol>
+<li>不会变动原数组</li>
+<li>适合处理海量数据，尤其对于不是一次性读取的数据</li>
+</ol>
+</li>
+</ul>
 </li>
 </ol>
 <ol start="3">
 <li>代码</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.PriorityQueue;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ArrayList&lt;Integer&gt; <span class="title">GetLeastNumbers_Solution</span><span class="params">(<span class="keyword">int</span> [] input, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        ArrayList&lt;Integer&gt; result = <span class="keyword">new</span> ArrayList&lt;Integer&gt;();</span><br><span class="line">        <span class="keyword">if</span>(k&gt;input.length||k&lt;=<span class="number">0</span>)</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        <span class="comment">//优先级队列使用需传入比较器</span></span><br><span class="line">        PriorityQueue&lt;Integer&gt; maxHeap = <span class="keyword">new</span> PriorityQueue&lt;Integer&gt;(k,(o1,o2)-&gt;o2-o1);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; input.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (maxHeap.size() != k) &#123;</span><br><span class="line">                maxHeap.offer(input[i]);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (maxHeap.peek() &gt; input[i]) &#123;</span><br><span class="line">                Integer temp = maxHeap.poll();</span><br><span class="line">                temp = <span class="keyword">null</span>;</span><br><span class="line">                maxHeap.offer(input[i]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (Integer integer : maxHeap) &#123;</span><br><span class="line">            result.add(integer);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
     </div>
   </div>
