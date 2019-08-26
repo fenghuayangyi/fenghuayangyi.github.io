@@ -199,14 +199,14 @@
   <div class="article-content">
     <div class="markdown-body">
       <h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><hr>
-<h2 id="排序算法"><a href="#排序算法" class="headerlink" title="排序算法"></a><a href="#11">排序算法</a></h2><ul>
-<li><a href="#11.1">11.1-最小的k个数冒泡排序</a></li>
-<li><a href="#11.2">11.2-最小的k个数选择排序</a></li>
-<li><a href="#11.3">11.3-最小的k个数直接插入排序</a></li>
-<li><a href="#11.4">11.4-最小的k个数归并排序</a></li>
-<li><a href="#11.5">11.5-最小的k个数快速排序</a></li>
-<li><a href="#11.6">11.6-最小的k个数堆排序</a></li>
-<li><a href="#11.7">11.7-最小的k个数两值交换–swap函数</a></li>
+<h2 id="排序算法"><a href="#排序算法" class="headerlink" title=" 排序算法"></a><a name="1"> <a href="#11">排序算法</a></a></h2><ul>
+<li><a href="#11.1">1.最小的k个数冒泡排序</a></li>
+<li><a href="#11.2">2.最小的k个数选择排序</a></li>
+<li><a href="#11.3">3.最小的k个数直接插入排序</a></li>
+<li><a href="#11.4">4.最小的k个数归并排序</a></li>
+<li><a href="#11.5">5.最小的k个数快速排序</a></li>
+<li><a href="#11.6">6.最小的k个数堆排序</a></li>
+<li><a href="#11.7">7.最小的k个数两值交换–swap函数</a></li>
 </ul>
 <hr>
 <h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><h2 id="排序算法-1"><a href="#排序算法-1" class="headerlink" title=" 排序算法"></a><a name="11"> 排序算法</a></h2><h3 id="1-冒泡排序"><a href="#1-冒泡排序" class="headerlink" title="1.  冒泡排序"></a>1. <a name="11.1"> 冒泡排序</a></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/***</span></span><br><span class="line"><span class="comment">*<span class="doctag">@title</span> 	Algorihm_Sort_Classic BubbleSort</span></span><br><span class="line"><span class="comment">*<span class="doctag">@author</span>	shaohua_zhang</span></span><br><span class="line"><span class="comment">***/</span></span><br><span class="line"><span class="comment">//冒泡排序 	稳定，且可以做到性能与初始数组无关 i = arr.length-1 -&gt; 0; j = 0 -&gt; i-1</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">BubbleSort</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(arr==<span class="keyword">null</span> || arr.length&lt;<span class="number">2</span>)&#123;</span><br><span class="line">		<span class="keyword">return</span> ;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> i=arr.length-<span class="number">1</span>; i&gt;<span class="number">0</span>; i--)&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>; j&lt;i; j++)&#123;</span><br><span class="line">			<span class="keyword">if</span>(arr[j+<span class="number">1</span>]&lt;arr[j])</span><br><span class="line">				swap(arr,j,j+<span class="number">1</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
