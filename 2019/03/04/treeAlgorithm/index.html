@@ -15,8 +15,13 @@
     <meta name="keywords" content="算法与数据结构,数据结构，面试,">
   
 
-  <script>
-    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  <script type="text/javascript">
+	$(document).ready(function() {
+	    //为超链接加上target='_blank'属性
+		$('a[href^="http"]').each(function() {
+			$(this).attr('target', '_blank');
+		});
+	});
   </script>
 
   
@@ -414,13 +419,13 @@
       <div class="nav-pre">
         <i class="iconfont icon-prev"></i>
         上一篇:
-        <a href="/2019/03/04/sortAlgorithm/" target="_self">面试准备之刷题总结：排序算法</a>
+        <a href="/2019/02/03/Shell 编程/" target="_self">Linux Shell编程</a>
       </div>
     
     
       <div class="nav-next">
         下一篇:
-        <a href="/2019/03/04/recursionAlgorithm/" target="_self">面试准备之刷题总结：递归与循环算法</a>
+        <a href="/2019/03/04/sortAlgorithm/" target="_self">面试准备之刷题总结：排序算法</a>
         <i class="iconfont icon-next"></i>
       </div>
     

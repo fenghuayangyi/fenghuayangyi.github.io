@@ -15,8 +15,13 @@
     <meta name="keywords" content="shaohua, blog">
   
 
-  <script>
-    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  <script type="text/javascript">
+	$(document).ready(function() {
+	    //为超链接加上target='_blank'属性
+		$('a[href^="http"]').each(function() {
+			$(this).attr('target', '_blank');
+		});
+	});
   </script>
 
   
@@ -228,8 +233,8 @@
   
   <div class="post">
     <h1 class="article-title">
-      <a href="/2019/03/04/searchAlgorithm/">
-        <span>面试准备之刷题总结：查找</span>
+      <a href="/2019/03/04/heapAlgorithm/">
+        <span>面试准备之刷题总结：堆</span>
       </a>
     </h1>
     <!-- PC端文章信息 -->
@@ -414,8 +419,8 @@
   
   <div class="post">
     <h1 class="article-title">
-      <a href="/2019/03/04/heapAlgorithm/">
-        <span>面试准备之刷题总结：堆</span>
+      <a href="/2019/03/04/stringAlgorithm/">
+        <span>面试准备之刷题总结：字符串</span>
       </a>
     </h1>
     <!-- PC端文章信息 -->
@@ -662,8 +667,8 @@
   
   <div class="post">
     <h1 class="article-title">
-      <a href="/2019/03/04/treeAlgorithm/">
-        <span>面试准备之刷题总结：树算法</span>
+      <a href="/2019/03/04/searchAlgorithm/">
+        <span>面试准备之刷题总结：查找</span>
       </a>
     </h1>
     <!-- PC端文章信息 -->
@@ -724,8 +729,8 @@
   
   <div class="post">
     <h1 class="article-title">
-      <a href="/2019/03/04/sortAlgorithm/">
-        <span>面试准备之刷题总结：排序算法</span>
+      <a href="/2019/03/04/stackqueueAlgorithm/">
+        <span>面试准备之刷题总结：栈和队列</span>
       </a>
     </h1>
     <!-- PC端文章信息 -->
