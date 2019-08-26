@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  
+  
+  <title>剑指offer | shaohua&#39;s blog</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="算法与数据结构,数据结构,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">Fenghuayangyi</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path>
+          
+            <a href="javascript:void(0);" v-else>抓到我</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://github.com/fenghuayangyi" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://blog.csdn.net/u011295626" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>剑指offer</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-01-10
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/算法与数据结构/">
+            算法与数据结构
+          </a>
+      </span>
+    
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2><h3 id="1-替换空格"><a href="#1-替换空格" class="headerlink" title="1. 替换空格"></a>1. 替换空格</h3><h3 id="2-字符串全排列"><a href="#2-字符串全排列" class="headerlink" title="2. 字符串全排列"></a>2. 字符串全排列</h3><h3 id="3-翻转单词顺序"><a href="#3-翻转单词顺序" class="headerlink" title="3. 翻转单词顺序"></a>3. 翻转单词顺序</h3><h3 id="4-实现atoi"><a href="#4-实现atoi" class="headerlink" title="4. 实现atoi"></a>4. 实现atoi</h3><h2 id="查找"><a href="#查找" class="headerlink" title="查找"></a>查找</h2><h3 id="1-旋转数组最小的数字"><a href="#1-旋转数组最小的数字" class="headerlink" title="1. 旋转数组最小的数字"></a>1. 旋转数组最小的数字</h3><h3 id="2-数字在排序数组中出现的次数"><a href="#2-数字在排序数组中出现的次数" class="headerlink" title="2. 数字在排序数组中出现的次数"></a>2. 数字在排序数组中出现的次数</h3><h2 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h2><h3 id="1-从尾到头打印链表"><a href="#1-从尾到头打印链表" class="headerlink" title="1. 从尾到头打印链表"></a>1. 从尾到头打印链表</h3><h3 id="2-快速删除链表节点"><a href="#2-快速删除链表节点" class="headerlink" title="2. 快速删除链表节点"></a>2. 快速删除链表节点</h3><h3 id="3-链表倒数第k节点"><a href="#3-链表倒数第k节点" class="headerlink" title="3. 链表倒数第k节点"></a>3. 链表倒数第k节点</h3><h3 id="4-反转链表"><a href="#4-反转链表" class="headerlink" title="4. 反转链表"></a>4. 反转链表</h3><h3 id="5-合并两个有序链表"><a href="#5-合并两个有序链表" class="headerlink" title="5. 合并两个有序链表"></a>5. 合并两个有序链表</h3><h3 id="6-复杂链表的复制"><a href="#6-复杂链表的复制" class="headerlink" title="6. 复杂链表的复制"></a>6. 复杂链表的复制</h3><h3 id="7-两个链表中的第一个公共节点"><a href="#7-两个链表中的第一个公共节点" class="headerlink" title="7. 两个链表中的第一个公共节点"></a>7. 两个链表中的第一个公共节点</h3><h2 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h2><p>###1. 二维数组中的查找</p>
+<h3 id="2-数组顺序调整"><a href="#2-数组顺序调整" class="headerlink" title="2. 数组顺序调整"></a>2. 数组顺序调整</h3><h3 id="3-把数组排成最小的数"><a href="#3-把数组排成最小的数" class="headerlink" title="3. 把数组排成最小的数"></a>3. 把数组排成最小的数</h3><h3 id="4-数组中的逆序对"><a href="#4-数组中的逆序对" class="headerlink" title="4. 数组中的逆序对"></a>4. 数组中的逆序对</h3><h2 id="栈和队列"><a href="#栈和队列" class="headerlink" title="栈和队列"></a>栈和队列</h2><h3 id="1-用两个栈实现队列"><a href="#1-用两个栈实现队列" class="headerlink" title="1. 用两个栈实现队列"></a>1. 用两个栈实现队列</h3><h3 id="2-包含min函数的栈"><a href="#2-包含min函数的栈" class="headerlink" title="2. 包含min函数的栈"></a>2. 包含min函数的栈</h3><h3 id="3-栈的压入弹出序列"><a href="#3-栈的压入弹出序列" class="headerlink" title="3. 栈的压入弹出序列"></a>3. 栈的压入弹出序列</h3><h2 id="递归与循环"><a href="#递归与循环" class="headerlink" title="递归与循环"></a>递归与循环</h2><p>###　1. 青蛙跳台阶</p>
+<h3 id="2-数值的整次方"><a href="#2-数值的整次方" class="headerlink" title="2. 数值的整次方"></a>2. 数值的整次方</h3><h3 id="3-打印从1到最大的n位数"><a href="#3-打印从1到最大的n位数" class="headerlink" title="3. 打印从1到最大的n位数"></a>3. 打印从1到最大的n位数</h3><h3 id="4-顺时针打印矩阵"><a href="#4-顺时针打印矩阵" class="headerlink" title="4. 顺时针打印矩阵"></a>4. 顺时针打印矩阵</h3><h3 id="5-数组中出现次数超过一半的数字"><a href="#5-数组中出现次数超过一半的数字" class="headerlink" title="5. 数组中出现次数超过一半的数字"></a>5. 数组中出现次数超过一半的数字</h3><h3 id="6-最小的k个数"><a href="#6-最小的k个数" class="headerlink" title="6. 最小的k个数"></a>6. 最小的k个数</h3><h3 id="7-和为s的两个数字"><a href="#7-和为s的两个数字" class="headerlink" title="7. 和为s的两个数字"></a>7. 和为s的两个数字</h3><p>###　8. 和为s的连续正数序列</p>
+<h3 id="9-n个骰子的点数"><a href="#9-n个骰子的点数" class="headerlink" title="9. n个骰子的点数"></a>9. n个骰子的点数</h3><h3 id="10-扑克牌的顺子"><a href="#10-扑克牌的顺子" class="headerlink" title="10. 扑克牌的顺子"></a>10. 扑克牌的顺子</h3><h3 id="11-圆圈中最后剩下的数组"><a href="#11-圆圈中最后剩下的数组" class="headerlink" title="11. 圆圈中最后剩下的数组"></a>11. 圆圈中最后剩下的数组</h3><h2 id="树"><a href="#树" class="headerlink" title="树"></a>树</h2><h3 id="1-重建二叉树"><a href="#1-重建二叉树" class="headerlink" title="1. 重建二叉树"></a>1. 重建二叉树</h3><h3 id="2-判断是否子树"><a href="#2-判断是否子树" class="headerlink" title="2. 判断是否子树"></a>2. 判断是否子树</h3><h3 id="3-二叉树的镜像"><a href="#3-二叉树的镜像" class="headerlink" title="3. 二叉树的镜像"></a>3. 二叉树的镜像</h3><h3 id="4-二叉搜索树的后序遍历序列"><a href="#4-二叉搜索树的后序遍历序列" class="headerlink" title="4. 二叉搜索树的后序遍历序列"></a>4. 二叉搜索树的后序遍历序列</h3><h3 id="5-二叉树中和为某一直的路径"><a href="#5-二叉树中和为某一直的路径" class="headerlink" title="5. 二叉树中和为某一直的路径"></a>5. 二叉树中和为某一直的路径</h3><h3 id="6-二叉树层序遍历"><a href="#6-二叉树层序遍历" class="headerlink" title="6. 二叉树层序遍历"></a>6. 二叉树层序遍历</h3><h3 id="7-二叉树转双向链表"><a href="#7-二叉树转双向链表" class="headerlink" title="7. 二叉树转双向链表"></a>7. 二叉树转双向链表</h3><h3 id="8-判断是平衡二叉树"><a href="#8-判断是平衡二叉树" class="headerlink" title="8. 判断是平衡二叉树"></a>8. 判断是平衡二叉树</h3><h2 id="位运算"><a href="#位运算" class="headerlink" title="位运算"></a>位运算</h2><h3 id="1-二进制中1的个数"><a href="#1-二进制中1的个数" class="headerlink" title="1. 二进制中1的个数"></a>1. 二进制中1的个数</h3><p>###2.  二进制中1的个数进阶版</p>
+<h3 id="3-数组中只出现一次的数字"><a href="#3-数组中只出现一次的数字" class="headerlink" title="3. 数组中只出现一次的数字"></a>3. 数组中只出现一次的数字</h3><h2 id="哈希表"><a href="#哈希表" class="headerlink" title="哈希表"></a>哈希表</h2><h3 id="1-丑数"><a href="#1-丑数" class="headerlink" title="1. 丑数"></a>1. 丑数</h3><h3 id="2-第一次只出现一次的字符"><a href="#2-第一次只出现一次的字符" class="headerlink" title="2. 第一次只出现一次的字符"></a>2. 第一次只出现一次的字符</h3><h2 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h2><h3 id="1-最小的k个数"><a href="#1-最小的k个数" class="headerlink" title="1. 最小的k个数"></a>1. 最小的k个数</h3>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : fenghuayangyi <br>
+        
+        原文链接 : <a href>https://github.com/fenghuayangyi/2019/01/10/剑指offer目录/</a><br>
+        版权声明 : 本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/数据结构/">
+              #数据结构
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2019/01/10/redis/" target="_self">Redis入门(基本操作)</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2019/02/03/Shell 编程/" target="_self">Linux Shell编程</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+   
+
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2018, 11, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>
