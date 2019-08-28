@@ -211,32 +211,36 @@
 <hr>
 <h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><h2 id="哈希表-1"><a href="#哈希表-1" class="headerlink" title=" 哈希表"></a><a name="9"> 哈希表</a></h2><h3 id="1-丑数"><a href="#1-丑数" class="headerlink" title="1.  丑数"></a>1. <a name="9.1"> 丑数</a></h3><ol>
 <li><p>题目表述</p>
-<p>​</p>
+<p>把只包含因子 2、3 和 5 的数称作丑数（Ugly Number）。例如 6、8 都是丑数，但 14 不是，因为它包含因子 7。习惯上我们把 1 当做是第一个丑数。求按从小到大的顺序的第 1500 个丑数。</p>
 </li>
 </ol>
 <ol start="2">
 <li><p>解题思路</p>
-<p>​</p>
+<p>思路一：</p>
+<p>根据定义，将给定的数不断除 2、3、5，看看能不能除尽即可。然后从 1 遍历到 1500。</p>
+<p>思路二：</p>
+<p>根据丑数定义，<strong>每一个丑数都是根据前面一个丑数乘以 2、3 或者 5 得到的</strong>。在确保顺序的情况下，逐步计算即可。</p>
 </li>
 </ol>
 <ol start="3">
 <li>代码</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h3 id="2-第一次只出现一次的字符"><a href="#2-第一次只出现一次的字符" class="headerlink" title="2.  第一次只出现一次的字符"></a>2. <a name="9.2"> 第一次只出现一次的字符</a></h3><ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.TreeSet;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">GetUglyNumber_Solution</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(index &lt; <span class="number">7</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> index;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> [] ugly = <span class="keyword">new</span> <span class="keyword">int</span> [index];</span><br><span class="line">        ugly[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> min2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> min3 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> min5 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; index; i++) &#123;</span><br><span class="line">            ugly[i] = Math.min(ugly[min2] * <span class="number">2</span>,Math.min(ugly[min3] * <span class="number">3</span>, ugly[min5] * <span class="number">5</span>));</span><br><span class="line">            <span class="keyword">if</span>(ugly[i] == ugly[min2] * <span class="number">2</span>) </span><br><span class="line">                min2++;</span><br><span class="line">            <span class="keyword">if</span>(ugly[i] == ugly[min3] * <span class="number">3</span>) </span><br><span class="line">                min3++;</span><br><span class="line">            <span class="keyword">if</span>(ugly[i] == ugly[min5] * <span class="number">5</span>) </span><br><span class="line">                min5++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ugly[index-<span class="number">1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-第一次只出现一次的字符位置"><a href="#2-第一次只出现一次的字符位置" class="headerlink" title="2.  第一次只出现一次的字符位置"></a>2. <a name="9.2"> 第一次只出现一次的字符位置</a></h3><ol>
 <li><p>题目表述</p>
-<p>​</p>
+<p>在字符串中找到第一个只出现一次的字符，返回其下标。</p>
 </li>
 </ol>
 <ol start="2">
 <li><p>解题思路</p>
-<p>​</p>
+<p>从头到尾遍历一遍，统计每个字符的出现次数，保存到哈希表中。</p>
+<p>再重新遍历一遍，每次都检查哈希表中的次数是不是 1，是 1，直接返回，这就是第一个字符。</p>
 </li>
 </ol>
 <ol start="3">
 <li>代码</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">FirstNotRepeatingChar</span><span class="params">(String str)</span> </span>&#123;</span><br><span class="line">        HashMap&lt;Character, Integer&gt; hm = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">if</span>(str == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//统计每个字符的出现次数，保存到哈希表中。</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; str.length(); i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(!hm.containsKey(str.charAt(i)))&#123;</span><br><span class="line">                hm.put(str.charAt(i), <span class="number">1</span>);<span class="comment">//key:具体值 value:出现次数</span></span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                hm.put(str.charAt(i), hm.get(str.charAt(i)) + <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; str.length(); i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(hm.get(str.charAt(i)) == <span class="number">1</span>)&#123;</span><br><span class="line">                <span class="keyword">return</span> i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
     </div>
   </div>
   
