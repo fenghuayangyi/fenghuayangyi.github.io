@@ -216,88 +216,115 @@
 <hr>
 <h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><h2 id="链表-1"><a href="#链表-1" class="headerlink" title=" 链表"></a><a name="3"> 链表</a></h2><h3 id="1-从尾到头打印链表"><a href="#1-从尾到头打印链表" class="headerlink" title="1.  从尾到头打印链表"></a>1. <a name="3.1"> 从尾到头打印链表</a></h3><ol>
 <li><p>题目表述</p>
-<p>​</p>
+<p>输入一个链表，从尾到头打印链表每个节点的值。</p>
 </li>
 </ol>
 <ol start="2">
 <li><p>解题思路</p>
-<p>​</p>
+<p>可以从头到尾遍历一遍链表，将节点放入栈中，然后依次取出打印（后入先出）。</p>
 </li>
 </ol>
 <ol start="3">
 <li>代码</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*；</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ArrayList&lt;Integer&gt; <span class="title">printListFromTailToHead</span><span class="params">(ListNode listNode)</span> </span>&#123;</span><br><span class="line">        Stack&lt;Integer&gt; stack = <span class="keyword">new</span> Stack&lt;Integer&gt;();</span><br><span class="line">        <span class="keyword">while</span>(listNode!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            stack.push(listNode.val);</span><br><span class="line">            listNode = listNode.next;</span><br><span class="line">        &#125;</span><br><span class="line">        ArrayList&lt;Integer&gt; arr = <span class="keyword">new</span> ArrayList&lt;Integer&gt;();</span><br><span class="line">        <span class="keyword">while</span>(!stack.isEmpty())&#123;</span><br><span class="line">            arr.add(stack.pop());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> arr;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="2-快速删除链表节点"><a href="#2-快速删除链表节点" class="headerlink" title="2.  快速删除链表节点"></a>2. <a name="3.2"> 快速删除链表节点</a></h3><ol>
 <li><p>题目表述</p>
-<p>​</p>
+<p>给定单向链表的头指针和一个结点指针，定义一个函数在 $O(1)$ 时间删除该结点。</p>
 </li>
 </ol>
 <ol start="2">
 <li><p>解题思路</p>
-<p>​</p>
+<p>正常的做法肯定是在 $O(N)$ 时间内删除节点。而这么过分的要求，显然是通过“<strong>重新赋值</strong>”才能做到。</p>
+<p>比如要删除节点 a，那么就将 a.next 的 value 和 next 赋值给节点 a，然后删除 a.next。</p>
+<p>表面“看起来”像是删除了节点 a，其实是将其后节点的信息转移到了它自己身上。</p>
+<p>除此之外，对于最后一个节点，还是要退化成 $O(N)$ 的复杂度。而整体分析一下复杂度：</p>
+<p>$$ O(T) = (O(N) + O(1) * (n - 1)) / n = O(1) $$</p>
 </li>
 </ol>
 <ol start="3">
 <li>代码</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteNode</span><span class="params">(ListNode headNode,ListNode delNode)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(headNode==<span class="keyword">null</span>||delNode==<span class="keyword">null</span>)</span><br><span class="line">             <span class="keyword">return</span> ;</span><br><span class="line">        <span class="keyword">if</span> (delNode.next != <span class="keyword">null</span>) &#123;    <span class="comment">//  如果不是尾节点</span></span><br><span class="line">            ListNode nextNode = delNode.next;</span><br><span class="line">            delNode.data = nextNode.data;</span><br><span class="line">            delNode.next = nextNode.next;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (delNode == headNode) &#123;     <span class="comment">//  如果只有一个节点</span></span><br><span class="line">            headNode.setData(<span class="keyword">null</span>); <span class="comment">// java 改变真实值需要通过set()方法</span></span><br><span class="line">            delNode.setData(<span class="keyword">null</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;     <span class="comment">//  如果是尾节点</span></span><br><span class="line">            ListNode node = headNode;</span><br><span class="line">            <span class="keyword">while</span> (node.next != delNode) &#123;</span><br><span class="line">                node = node.next;</span><br><span class="line">            &#125;</span><br><span class="line">            node.next = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="3-链表倒数第k节点"><a href="#3-链表倒数第k节点" class="headerlink" title="3.  链表倒数第k节点"></a>3. <a name="3.3"> 链表倒数第k节点</a></h3><ol>
 <li><p>题目表述</p>
-<p>​</p>
+<p>输入一个单链表，输出该链表中倒数第 k 个<strong>结点</strong>。</p>
 </li>
 </ol>
 <ol start="2">
 <li><p>解题思路</p>
-<p>​</p>
+<p>准备 2 个指针<code>a</code>和<code>b</code>均指向第一个节点，<code>a</code>先移动<code>k</code>个位置；然后<code>a</code>和<code>b</code>一起向后移动，此时两个只指针的位置差为<code>k</code>；直到<code>a</code>移动到尾结点停止，此时<code>b</code>指向的节点就是倒数第 k 个节点。</p>
 </li>
 </ol>
 <ol start="3">
 <li>代码</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="comment">//采用双指针</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">FindKthToTail</span><span class="params">(ListNode head,<span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(head==<span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        ListNode p1 = head;<span class="comment">//记录第k个节点</span></span><br><span class="line">        <span class="keyword">while</span>(p1!=<span class="keyword">null</span> &amp;&amp; k&gt;<span class="number">0</span>)&#123;</span><br><span class="line">            k--;</span><br><span class="line">            p1 = p1.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(k&gt;<span class="number">0</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        ListNode p2 = head;</span><br><span class="line">        <span class="keyword">while</span>(p1!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            p1 = p1.next;</span><br><span class="line">            p2 = p2.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> p2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="4-反转链表"><a href="#4-反转链表" class="headerlink" title="4.  反转链表"></a>4. <a name="3.4"> 反转链表</a></h3><ol>
 <li><p>题目表述</p>
-<p>​</p>
+<p>定义一个函数，输入一个链表的头结点，反转该链表并输出反转后链表的头结点。</p>
 </li>
 </ol>
 <ol start="2">
 <li><p>解题思路</p>
-<p>​</p>
+<p><strong>思路一</strong>：经典的“链表头插法”，时间复杂度是 $O(N)$，但是空间复杂度也是 $O(N)$</p>
+<p><strong>思路二</strong>：链表原地操作，时间复杂度是 $O(N)$，但是空间复杂度只有 $O(1)$。</p>
+<ol>
+<li>保存当前节点<code>node</code>的上一个节点<code>pre</code></li>
+<li>节点<code>node</code>的<code>next</code>指向<code>pre</code></li>
+<li>分别将<code>pre</code>和<code>node</code>向后移动 1 个位置</li>
+<li>如果<code>node</code>为 null，链表翻转完毕，此时<code>pre</code>指向新的头节点，返回即可</li>
+<li>否则，回到第 1 步继续执行</li>
+</ol>
 </li>
 </ol>
-<ol start="3">
+<ol>
 <li>代码</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">ReverseList</span><span class="params">(ListNode head)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//递归问题 两个listnode 反转</span></span><br><span class="line">        <span class="keyword">if</span>(head==<span class="keyword">null</span> || head.next==<span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> head;</span><br><span class="line">        ListNode nxt = head.next;</span><br><span class="line">        head.next = <span class="keyword">null</span>;</span><br><span class="line">        ListNode newhead = ReverseList(nxt);</span><br><span class="line">        nxt.next = head;</span><br><span class="line">        <span class="comment">//return 只是传递新的表头，在这之前反转操作已经完成</span></span><br><span class="line">        <span class="keyword">return</span> newhead;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="5-合并两个有序链表"><a href="#5-合并两个有序链表" class="headerlink" title="5.  合并两个有序链表"></a>5. <a name="3.5"> 合并两个有序链表</a></h3><ol>
 <li><p>题目表述</p>
-<p>​</p>
+<p>输入两个递增排序的链表，合并这两个链表并使新链表中的结点仍然是按照递增排序的。</p>
 </li>
 </ol>
 <ol start="2">
 <li><p>解题思路</p>
-<p>​</p>
+<p>准备一个指针<code>node</code>，假设指向两个链表的中节点的指针分别是：<code>p1</code>和<code>p2</code>。</p>
+<ol>
+<li>比较<code>p1</code>和<code>p2</code>的<code>value</code>大小</li>
+</ol>
+<ul>
+<li>如果，p1.value 小于 p2.value, node.next 指向 p1, p1 向后移动</li>
+<li>否则，node.next 指向 p2, p2 向后移动</li>
+</ul>
+<ol>
+<li>重复第 1 步，直到其中一个链表遍历完</li>
+<li>跳出循环，将 node.next 指向未遍历完的链表的剩余部分</li>
+</ol>
+<p>整个过程的时间复杂度是 O(N), 空间复杂度是 O(1)</p>
 </li>
 </ol>
 <ol start="3">
 <li>代码</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//递归方式</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">Merge</span><span class="params">(ListNode list1,ListNode list2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(list1 == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> list2;</span><br><span class="line">        <span class="keyword">if</span>(list2 == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> list1;</span><br><span class="line">        <span class="keyword">if</span>(list1.val&lt;=list2.val)&#123;</span><br><span class="line">            list1.next = Merge(list1.next,list2);</span><br><span class="line">            <span class="keyword">return</span> list1;</span><br><span class="line">        &#125; <span class="keyword">else</span>&#123;</span><br><span class="line">            list2.next = Merge(list1,list2.next);</span><br><span class="line">            <span class="keyword">return</span> list2;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//循环方式</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">Merge</span><span class="params">(ListNode list1,ListNode list2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(list1 == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> list2;</span><br><span class="line">        <span class="keyword">if</span>(list2 == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> list1;</span><br><span class="line">        ListNode node = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</span><br><span class="line">        ListNode  head = node;</span><br><span class="line">        <span class="keyword">while</span>(list1!=<span class="keyword">null</span>&amp;&amp;list2!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(list1.val&lt;=list2.val)&#123;</span><br><span class="line">                node.next = list1;</span><br><span class="line">                list1 = list1.next;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                node.next = list2;</span><br><span class="line">                list2 = list2.next;</span><br><span class="line">            &#125;</span><br><span class="line">            node = node.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span>(list1!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            node.next = list1;</span><br><span class="line">            list1 = list1.next;</span><br><span class="line">            node = node.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span>(list2!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            node.next = list2;</span><br><span class="line">            list2 = list2.next;</span><br><span class="line">            node = node.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> head.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="6-复杂链表的复制"><a href="#6-复杂链表的复制" class="headerlink" title="6.  复杂链表的复制"></a>6. <a name="3.6"> 复杂链表的复制</a></h3><ol>
 <li><p>题目表述</p>
-<p>​</p>
+<p>请实现函数<code>ComplexListNode *Clone（ComplexListNode* pHead）</code>，复制一个复杂链表。在复杂链表中，每个结点除了有一个 next 指针指向下一个结点外，还有一个 sibling 指向链表中的任意结点或者 NULL。</p>
 </li>
 </ol>
 <ol start="2">
 <li><p>解题思路</p>
-<p>​</p>
+<p>按照正常的思路，首先从头到尾遍历链表，拷贝每个节点的 value 和 next 指针。然后从头再次遍历，第二次遍历的目的在于拷贝每个节点的 sibling 指针。</p>
+<p>然而即使找到原节点的 sibling 指针，还是得为了找到复制节点对应的 sibling 指针而再遍历一遍。那么对于 n 个要寻找 sibling 指针的节点，复杂度就是 O(N*N)。</p>
+<p>显然，为了降低复杂度，必须从第二次遍历着手。这里采用的方法是，在第一次遍历的时候，把 <code>(原节点, 复制节点)</code> 作为映射保存在表中。那么第二次遍历的时候，就能在 O(1) 的复杂度下立即找到原链上 sibling 指针在复制链上对应的映射。采用hash表</p>
 </li>
 </ol>
 <ol start="3">
 <li>代码</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ComplexListNode</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">int</span> m_nValue;</span><br><span class="line">	ComplexListNode m_pNext;</span><br><span class="line">	ComplexListNode m_pSibling;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">ComplexListNode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">ComplexListNode</span><span class="params">(<span class="keyword">int</span> m_nValue)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">super</span>();</span><br><span class="line">		<span class="keyword">this</span>.m_nValue = m_nValue;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> ComplexListNode <span class="title">clone</span><span class="params">(ComplexListNode pHead)</span></span>&#123;</span><br><span class="line">		</span><br><span class="line">	<span class="keyword">if</span>(pHead == <span class="keyword">null</span>)&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	HashMap&lt;ComplexListNode, ComplexListNode&gt; map = <span class="keyword">new</span> HashMap&lt;ComplexListNode, ComplexListNode&gt;();</span><br><span class="line">	ComplexListNode pClonedHead = <span class="keyword">new</span> ComplexListNode(pHead.m_nValue); <span class="comment">//复制链表的头结点</span></span><br><span class="line">	ComplexListNode pNode = pHead, pClonedNode = pClonedHead;</span><br><span class="line">	map.put(pNode, pClonedNode);</span><br><span class="line">		</span><br><span class="line">	<span class="comment">//第一步，hashMap保存，原链表节点映射复制链表节点</span></span><br><span class="line">	<span class="keyword">while</span>(pNode.m_pNext != <span class="keyword">null</span>)&#123;</span><br><span class="line">		pClonedNode.m_pNext = <span class="keyword">new</span> ComplexListNode(pNode.m_pNext.m_nValue);</span><br><span class="line">		pNode = pNode.m_pNext;</span><br><span class="line">		pClonedNode = pClonedNode.m_pNext;</span><br><span class="line">		map.put(pNode, pClonedNode);</span><br><span class="line">	&#125;</span><br><span class="line">		</span><br><span class="line">	<span class="comment">//第二步：找到对应的m_pSibling</span></span><br><span class="line">	pNode = pHead;</span><br><span class="line">	pClonedNode = pClonedHead;</span><br><span class="line">	<span class="keyword">while</span>(pClonedNode!=<span class="keyword">null</span>)&#123;</span><br><span class="line">		pClonedNode.m_pSibling = map.get(pNode.m_pSibling);</span><br><span class="line">		pNode = pNode.m_pNext;</span><br><span class="line">		pClonedNode = pClonedNode.m_pNext;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> pClonedHead;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="7-两个链表中的第一个公共节点"><a href="#7-两个链表中的第一个公共节点" class="headerlink" title="7.  两个链表中的第一个公共节点"></a>7. <a name="3.7"> 两个链表中的第一个公共节点</a></h3><ol>
 <li><p>题目表述</p>
 <p>输入两个链表，找出它们的第一个公共结点。</p>
