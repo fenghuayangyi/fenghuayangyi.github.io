@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  
+  
+  <title>java面试84讲 | shaohua&#39;s blog</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="java,基础,">
+  
+
+  <script type="text/javascript">
+	$(document).ready(function() {
+	    //为超链接加上target='_blank'属性
+		$('a[href^="http"]').each(function() {
+			$(this).attr('target', '_blank');
+		});
+	});
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">Fenghuayangyi</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path>
+          
+            <a href="javascript:void(0);" v-else>抓到我</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://github.com/fenghuayangyi" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://blog.csdn.net/u011295626" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>java面试84讲</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-01-10
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/java/">
+            java
+          </a>
+      </span>
+    
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h1 id="1-java基础部分"><a href="#1-java基础部分" class="headerlink" title="1. java基础部分"></a>1. java基础部分</h1><h2 id="1-1-跨平台原理"><a href="#1-1-跨平台原理" class="headerlink" title="1.1 跨平台原理"></a>1.1 跨平台原理</h2><p>由于操作系统的指令集不完全一致，同一程序在不同的操作系统中需要执行不同的程序代码。</p>
+<p>java通过java虚拟机屏蔽各个系统之间的差异。java虚拟机将.java文件编译成.class文件，然后不同的操作系统对应的java虚拟机略有不同，有java虚拟机将.class文件翻译成机器码交由操作系统运行。</p>
+<p>java通过不同系统，不同位数的java虚拟机屏蔽操作系统之间的差异。因此对于外界来说，java是跨平台的。</p>
+<h2 id="1-2-java中int-数据占几个字节"><a href="#1-2-java中int-数据占几个字节" class="headerlink" title="1.2 java中int 数据占几个字节"></a>1.2 java中int 数据占几个字节</h2><p>Java中有8种基本数据类型</p>
+<p>数据类型        二进制位数(字节数)    范围</p>
+<p>byte        8（1）            -128 - 127</p>
+<p>short        16（2）            -32768 - 32768</p>
+<p>int            32（4）            </p>
+<p>long        64（8）</p>
+<p>float        32（4）</p>
+<p>double        64（8）</p>
+<p>char        16（2）</p>
+<p>boolean        1        </p>
+<h2 id="1-3-面向对象的特征有哪些方面"><a href="#1-3-面向对象的特征有哪些方面" class="headerlink" title="1.3 面向对象的特征有哪些方面"></a>1.3 面向对象的特征有哪些方面</h2><p>有三大基本特征：封装，继承，多态</p>
+<ul>
+<li><p>封装：将描述一个对象的属性和行为封装成一个类，把具体的业务逻辑功能实现封装成一个方法。封装的意义：把自己的数据和方法只让可信的类或者对象操作，对不可信的进行信息隐藏。</p>
+<p>—-&gt;减少了大量的冗余代码<br>—-&gt;封装将复杂的功能封装起来，对外开放一个接口，简单调用即可。</p>
+</li>
+<li><p>继承：所有的子类所共有的行为和属性抽取为一个父类，实现代码的复用。所有的子类继承该类可具备父类的属性和行为，继承具有单一性和传递性。</p>
+<p>—-&gt;减少了类的冗余代码<br>—-&gt;让类与类之间产生关系，为多态打下基础</p>
+</li>
+<li><p>多态：多态性体现在父类中定义的属性和方法被子类继承后，子类可以具有不同的属性或表现方式。</p>
+<p>—–&gt;虚方法 virtual override<br>—–&gt;抽象类 abstract override<br>—–&gt;接口 interface</p>
+<p>多态可分为行为多态和对象多态。</p>
+<ul>
+<li>行为多态：同一个run( ){ }方法，不同的对象调用时会有不同的实现。</li>
+<li>对象多态：同一个对象，可以被造型为不同的类型。定义一个引用变量，他所指向的具体类型和通过该引用变量调用的方法在编程时并不确定，只有<strong>在程序运行期间才确定</strong>，即一个引用变量具体指向哪个类的实例对象。</li>
+</ul>
+</li>
+</ul>
+<h2 id="1-4-为什么需要包装类"><a href="#1-4-为什么需要包装类" class="headerlink" title="1.4 为什么需要包装类"></a>1.4 为什么需要包装类</h2><p>包装类是使得基本数据类型具有类的性质。jdk1.5以后自动装箱和拆箱。</p>
+<p>原因：java是面向对象的语言，而基本数据类型不具有对象的特征，为了让基本类型也具有对象的特征，就出现了包装类型。</p>
+<p>为什么存在这两种类型呢？</p>
+<p>在Java语言中，new一个对象存储在堆里，我们通过栈中的引用来使用这些对象；但是对于经常用到的一系列类型如int，如果我们用new将其存储在堆里就不是很有效——特别是简单的小的变量。所以就出现了基本类型，对于这些类型不是用new关键字来创建，而是直接将<strong>变量的值存储在栈中</strong>，因此更加高效。</p>
+<h2 id="1-5-和equals的区别？"><a href="#1-5-和equals的区别？" class="headerlink" title="1.5 == 和equals的区别？"></a>1.5 == 和equals的区别？</h2><p>基本数据类型的话，== 比较的是两个变量的值是否相等。</p>
+<p>引用数据类型的话，== 比较的是两个变量的内存地址是否相等。</p>
+<p>equals的话 用来比较两个对象是否长得一样，本质就是调用对象的equals方法。（需要重写object的equals方法，如果不重写的话，比较的也是内存地址）</p>
+<p>ps:基本数据类型没有equals方法，他是object的一个方法。</p>
+<h2 id="1-6-String-StringBuilder-StringBuffer的区别？"><a href="#1-6-String-StringBuilder-StringBuffer的区别？" class="headerlink" title="1.6 String,StringBuilder,StringBuffer的区别？"></a>1.6 String,StringBuilder,StringBuffer的区别？</h2><p>String类提供了数值不可改变的字符串。final类</p>
+<p>StringBuilder,StringBuffer是内容可以改变的字符串。底层使用的是可变字符数组。</p>
+<p>StringBuilder线程不安全，高效，StringBuffer线程安全，效率不高（synchronized修饰）</p>
+<h2 id="1-7-讲一下java中的集合"><a href="#1-7-讲一下java中的集合" class="headerlink" title="1.7 讲一下java中的集合"></a>1.7 讲一下java中的集合</h2><p>Java中集合分两种：value和key-value两种。</p>
+<p>存储值的又分为：<strong>List和Set</strong></p>
+<ul>
+<li>List是有序的，可以重复的</li>
+<li>Set是无序的，不可重复的，根据equals和hashcode判断。ps:如果一个对象要存在set中，必须重写equals和hashcode方法。</li>
+</ul>
+<p>存储key-value的有：<strong>map</strong></p>
+<h2 id="1-8-ArrayList-和-LinkList的区别？"><a href="#1-8-ArrayList-和-LinkList的区别？" class="headerlink" title="1.8 ArrayList 和 LinkList的区别？"></a>1.8 ArrayList 和 LinkList的区别？</h2><p>ArrayList 底层数组实现。LinkList底层链表实现。</p>
+<p>数组查询快，插入和删除比较慢。（数组在内存中是一块连续的内存，插入和删除需要移动数据）</p>
+<p>链表不要求内存连续，因此插入和删除快（只需要改变引用即可），查找慢。</p>
+<p>ArrayList 使用场景：查询多，修改和删除较少，反之LinkList。</p>
+<h2 id="1-9-HashMap和HashTable的区别？"><a href="#1-9-HashMap和HashTable的区别？" class="headerlink" title="1.9 HashMap和HashTable的区别？"></a>1.9 HashMap和HashTable的区别？</h2><p>相同点：HashMap和Hashtable都用来存储key-value数据。</p>
+<p>区别：</p>
+<p>HashMap最多只允许一条记录的键为Null;允许多条记录的值为 Null;而Hashtable不允许为空。</p>
+<p>HashMap不支持线程的同步（线程不安全），效率较高，Hashtable支持线程的同步（线程安全），效率较低。</p>
+<p>如果既想要线程安全有想要高效，使用ConcurrentHashMap（jdk1.5以后）。</p>
+<p>原理：将一个hashmap分为几块,每一小块都是线程安全的，一定程度上将锁的区域减小，在线程安全的基础上，提高效率。</p>
+<h2 id="1-10-实现一个文件拷贝的工具类，使用字节流还是字符流？"><a href="#1-10-实现一个文件拷贝的工具类，使用字节流还是字符流？" class="headerlink" title="1.10 实现一个文件拷贝的工具类，使用字节流还是字符流？"></a>1.10 实现一个文件拷贝的工具类，使用字节流还是字符流？</h2><p>因为文件拷贝不只包含字符流，比如图像，声音等，因此使用字节流。</p>
+<h2 id="1-11-线程的几种实现方式？怎么启动？怎么区分？线程池的作用？"><a href="#1-11-线程的几种实现方式？怎么启动？怎么区分？线程池的作用？" class="headerlink" title="1.11 线程的几种实现方式？怎么启动？怎么区分？线程池的作用？"></a>1.11 线程的几种实现方式？怎么启动？怎么区分？线程池的作用？</h2><p>线程的2种常用实现方式：</p>
+<ul>
+<li><p>继承Thread类，重写run方法，实现一个线程</p>
+</li>
+<li><p>实现Runnable接口，重写run方法，实现一个线程。</p>
+<p>使用new Thread(new Runnable实现类) 这种方式来生成线程对象，这个时候线程对象中的run方法才会去执行我们自己实现的Runnable接口中的run方法。</p>
+</li>
+</ul>
+<p>怎么启动？</p>
+<ul>
+<li><p>继承Thread类。</p>
+<p>MyThread thread = new MyThread(); </p>
+<p>thread .start();</p>
+</li>
+<li><p>实现Runnable接口(MyThread)</p>
+<p>Thread thread = new Thread(new MyThread);</p>
+<p>thread .start();</p>
+<p>启动线程使用start方法， 启动以后执行的是run方法。</p>
+</li>
+</ul>
+<p>怎么区分线程？thread .setName(“MyThread”);</p>
+<p>线程池的作用？</p>
+<p>​    在程序启动的时候就创建若干线程来响应处理，它们被称为线程池，里面的线程叫工作线程。</p>
+<p>​    线程的创建是耗时的，因此在应用启用后，预先启动一定数量的线程，当需要的时候，取一个分配给他，执行结束再还给线程池。</p>
+<p>作用：</p>
+<ul>
+<li><strong>限定线程的个数</strong>，不由由于线程过多导致系统运行缓慢或者崩溃。</li>
+<li><strong>降低资源消耗</strong>。不需要频繁的创建和销毁，节约资源。 </li>
+<li><strong>提高响应速度</strong>。当任务到达时，任务可以不需要等到线程创建就能立即执行。 </li>
+<li><strong>提高线程的可管理性</strong>。 </li>
+</ul>
+<h2 id="1-12-有没有使用过线程并发库？"><a href="#1-12-有没有使用过线程并发库？" class="headerlink" title="1.12 有没有使用过线程并发库？"></a>1.12 有没有使用过线程并发库？</h2><p>简单使用过。jdk1.5以后增加的。对Java线程的管理和使用提供了很大的便利性。</p>
+<p>java.util.current包，包含了对线程优化，管理的各项操作。</p>
+<p><strong>java中如何创建线程池</strong>？</p>
+<ul>
+<li>newCachedThreadPool创建一个<strong>可缓存线程池</strong>，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。</li>
+<li>newFixedThreadPool 创建一个<strong>定长线程池</strong>，可控制线程最大并发数，超出的线程会在队列中等待。</li>
+<li>newScheduledThreadPool 创建一个<strong>定长线程池</strong>，支持定时及周期性任务执行。</li>
+<li>newSingleThreadExecutor 创建一个<strong>单线程化的线程池</strong>，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。</li>
+</ul>
+<h1 id="2-java容器"><a href="#2-java容器" class="headerlink" title="2. java容器"></a>2. java容器</h1><p>Java容器可分为两大类：</p>
+<ul>
+<li><p>Collection</p>
+</li>
+<li><ul>
+<li><p>List</p>
+</li>
+<li><ul>
+<li><strong>ArrayList</strong></li>
+<li>LinkedList</li>
+<li>Vector(了解，已过时)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li></li>
+<li><p>Set</p>
+</li>
+<li><ul>
+<li><p>TreeSet</p>
+</li>
+<li><p><strong>HashSet</strong></p>
+</li>
+<li><ul>
+<li>LinkedHashSet</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>Map</p>
+</li>
+<li><ul>
+<li><p><strong>HashMap</strong></p>
+</li>
+<li><ul>
+<li>LinkedHashMap</li>
+</ul>
+</li>
+<li><p>TreeMap</p>
+</li>
+<li><p>ConcurrentHashMap</p>
+</li>
+<li><p>Hashtable(了解，，已过时)</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-1-Collection"><a href="#2-1-Collection" class="headerlink" title="2.1 Collection"></a>2.1 Collection</h2><h3 id="2-1-1-数组和集合的区别"><a href="#2-1-1-数组和集合的区别" class="headerlink" title="2.1.1 数组和集合的区别"></a>2.1.1 数组和集合的区别</h3><ul>
+<li><p>1.长度的区别</p>
+</li>
+<li><ul>
+<li><strong>数组的长度固定</strong></li>
+<li><strong>集合的长度可变</strong></li>
+</ul>
+</li>
+<li><p>2.元素的数据类型</p>
+</li>
+<li><ul>
+<li>数组可以存储基本数据类型,也可以存储引用类型</li>
+<li><strong>集合只能存储引用类型(你存储的是简单的int，它会自动装箱成Integer)</strong></li>
+</ul>
+</li>
+</ul>
+<p>###2.1.2 Collection</p>
+<p>Collection接口 继承 Iterator接口， 因此<strong>遍历集合(Collection)的元素都可以使用Iterator</strong>。</p>
+<p><strong>List（有序，可重复）: </strong></p>
+<ul>
+<li><strong>ArrayList</strong>：底层数据结构是数组。线程不安全</li>
+<li><strong>Vector</strong>：底层数据结构是数组。线程安全</li>
+<li><strong>LinkedList</strong>：底层数据结构是链表。线程不安全</li>
+</ul>
+<p><strong>Set（元素不可重复）: Set集合实际上就是HashMap来构建的!</strong></p>
+<ul>
+<li><strong>HashSet</strong>：底层数据结构是哈希表(是一个元素为链表的数组)，链地址法解决冲突。</li>
+<li><strong>TreeSet</strong>：底层数据结构是红黑树(是一个自平衡的二叉树)，保证元素的排序方式。</li>
+<li><strong>LinkedHashSet</strong>：底层数据结构由哈希表和链表组成。</li>
+</ul>
+<p>### </p>
+<ul>
+<li><p>Vector与ArrayList区别(<strong>底层都是数组实现</strong>)：</p>
+</li>
+<li><p>add(E e), add(int index, E element),  get(int index),set(int index, E e),remove(int index)</p>
+<ul>
+<li><p>Vector底层也是数组，与ArrayList最大的区别就是：<strong>同步(线程安全)</strong></p>
+<p>Vector的方法使用synchronized的修饰。</p>
+</li>
+<li><p><strong>ArrayList在底层数组不够用时在原来的基础上扩展0.5倍，Vector是扩展1倍。</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<p>如果<strong>想要ArrayList实现同步</strong>，可以使用Collections（集合的工具类）的方法：</p>
+<p><code>List list =Collections.synchronizedList(new ArrayList(...));</code>，就可以实现同步了~</p>
+<ul>
+<li>LinkedList（底层是<strong>双向链表</strong>）<ul>
+<li><strong>LinkedList实现了Deque接口</strong>，可以<strong>操作LinkedList像操作队列和栈一样</strong>。</li>
+<li>add(E e), remove(Object o), get(nt index),set(int index, E e)</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-2-Map"><a href="#2-2-Map" class="headerlink" title="2.2 Map"></a>2.2 Map</h2><p><strong>HashMap, HashTable, ConcurrentHashMap, LinkedHashMap, TreeMap</strong></p>
+<p>Map特点：</p>
+<p>将键映射到值的对象，一个映射不能包含重复的键，每个键至多只能一个值。</p>
+<p>Map与Collection的区别：</p>
+<ol>
+<li>Map存储元素是成对出现的，键是唯一的，值可以重复。</li>
+<li>Collection存储元素是单独出现的，Set的元素是唯一的，List是可重复的。</li>
+</ol>
+<p>HashMap: put(key,value), get(key), remove(key)</p>
+<ul>
+<li><p><strong>散列表介绍</strong></p>
+<p>无论是Set还是Map，我们会发现都会有对应的–&gt;<strong>Hash</strong>Set,<strong>Hash</strong>Map</p>
+<p>原理：散列表<strong>为每个对象计算出一个整数，称为散列码</strong>。<strong>根据</strong>这些计算出来的<strong>整数(散列码)保存在对应的位置上</strong>！</p>
+<p><strong><em>在Java中，散列表用的是链表数组实现的，每个列表称之为桶。</em></strong></p>
+<ul>
+<li>如果散列表太满，<strong>是需要对散列表再散列，创建一个桶数更多的散列表，并将原有的元素插入到新表中，丢弃原来的表</strong>~</li>
+<li>装填因子(load factor)<strong>决定了何时</strong>对散列表再散列~，装填因子默认为0.75，如果表中<strong>超过了75%的位置</strong>已经填入了元素，那么这个表就会用<strong>双倍的桶数</strong>自动进行再散列</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-1-3-1-HashMap和Hashtable的区别"><a href="#2-1-3-1-HashMap和Hashtable的区别" class="headerlink" title="2.1.3.1 HashMap和Hashtable的区别"></a>2.1.3.1 HashMap和Hashtable的区别</h4><p><strong>共同点：</strong></p>
+<ul>
+<li>从存储结构和实现来讲基本上都是相同的，都是实现Map接口~</li>
+</ul>
+<p><strong>区别：</strong></p>
+<ul>
+<li><p><strong>同步性：</strong></p>
+</li>
+<li><ul>
+<li>HashMap是非同步的</li>
+<li>Hashtable是同步的</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong>是否允许为null：</strong></p>
+</li>
+<li><ul>
+<li>HashMap允许为null</li>
+<li>Hashtable不允许为null</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong>继承不同：</strong></p>
+</li>
+<li><ul>
+<li><p>HashMap</p>
+<p>extends AbstractMap</p>
+</li>
+<li><p>public class Hashtable</p>
+<p>extends Dictionary</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-3-Set集合"><a href="#2-3-Set集合" class="headerlink" title="2.3 Set集合"></a>2.3 Set集合</h2><p>Set集合实际上就是HashMap来构建的!</p>
+<p>Set里的元素是不能重复的，那么用什么方法来区分重复与否呢? 是用==还是equals()?</p>
+<p>​    <strong>==和equals()方法都有使用</strong>！</p>
+<ul>
+<li><p>Set集合实际<strong>大都使用的是Map集合的put方法来添加元素</strong>。</p>
+<p>以HashSet为例，添加元素的时候，如果key(也对应的Set集合的元素)相等，那么则修改value值。而在Set集合中，value值仅仅是一个Object对象罢了(<strong>该对象对Set本身而言是无用的</strong>)。</p>
+<p>因此，Set集合如果添加的元素相同时，<strong>是根本没有插入的(仅修改了一个无用的value值)</strong>！</p>
+</li>
+</ul>
+<h1 id="3-数据库部分"><a href="#3-数据库部分" class="headerlink" title="3. 数据库部分"></a>3. 数据库部分</h1><h2 id="3-1-介绍数据库的三范式？"><a href="#3-1-介绍数据库的三范式？" class="headerlink" title="3.1 介绍数据库的三范式？"></a>3.1 介绍数据库的三范式？</h2><p>一范式：列不可再分。</p>
+<p>二范式：满足一范式的条件下，非主属性完全依赖于码。（码：唯一确定一个元组的某个属性（或者属性组））</p>
+<p>三范式：满足二范式的条件下，不存在传递函数依赖。</p>
+<p>总结：</p>
+<ul>
+<li>第一范式：简单说 列不能再分</li>
+<li>第二范式：简单说 建立在第一范式基础上，消除部分依赖</li>
+<li>第三范式：简单说 建立在第二范式基础上，消除传递依赖。</li>
+</ul>
+<h2 id="3-2-事务的四个基本特征"><a href="#3-2-事务的四个基本特征" class="headerlink" title="3.2 事务的四个基本特征"></a>3.2 事务的四个基本特征</h2><p>事务是并发控制的单位，是一个操作序列，要么都做，要么都不做。</p>
+<p>原子性，一致性，隔离性，持久性。</p>
+<ul>
+<li>原子性：事务内操作不可分割。</li>
+<li>一致性：要么都做，要么都不做。</li>
+<li>隔离性：事务开始后，不受其他事务的影响。</li>
+<li>持久性：事务一旦提交，其更改是永久性的，即使数据库系统崩溃也能恢复。</li>
+</ul>
+<h2 id="3-3-mysql数据库的默认最大连接数"><a href="#3-3-mysql数据库的默认最大连接数" class="headerlink" title="3.3 mysql数据库的默认最大连接数"></a>3.3 mysql数据库的默认最大连接数</h2><p>默认：100</p>
+<p>为什么需要最大连接数？</p>
+<p>​    连接过多导致性能下降，严重影响数据库的服务。</p>
+<h2 id="3-4-数据库分页"><a href="#3-4-数据库分页" class="headerlink" title="3.4 数据库分页"></a>3.4 数据库分页</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql:  -- limit offset,size</span><br><span class="line">select * from student order by id limit pagesize*(pagenum-<span class="number">1</span>),pagesize;</span><br><span class="line"></span><br><span class="line">oracle:</span><br><span class="line">select * from</span><br><span class="line">	(select *,rownum rid from</span><br><span class="line">		(select * from student order by id)</span><br><span class="line">     where rid&lt;= pagesize*pagenum as t)</span><br><span class="line">where t &gt; pagesize*(pagenum-<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : fenghuayangyi <br>
+        
+        原文链接 : <a href>https://github.com/fenghuayangyi/2019/01/10/java面试84讲/</a><br>
+        版权声明 : 本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/基础/">
+              #基础
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2019/01/10/redis/" target="_self">Redis入门(基本操作)</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2019/02/03/Shell 编程/" target="_self">Linux Shell编程</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+   
+
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2018, 11, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>
