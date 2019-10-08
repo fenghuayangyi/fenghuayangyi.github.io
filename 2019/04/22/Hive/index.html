@@ -384,6 +384,178 @@
 </li>
 </ul>
 <h2 id="3-8-删除表"><a href="#3-8-删除表" class="headerlink" title="3.8 删除表"></a>3.8 删除表</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drop table dept_partition;</span><br></pre></td></tr></table></figure>
+<h1 id="4-DML数据操作"><a href="#4-DML数据操作" class="headerlink" title="4. DML数据操作"></a>4. DML数据操作</h1><h2 id="4-1-数据导入"><a href="#4-1-数据导入" class="headerlink" title="4.1 数据导入"></a>4.1 数据导入</h2><h3 id="4-1-1-向表中装载数据（Load）"><a href="#4-1-1-向表中装载数据（Load）" class="headerlink" title="4.1.1 向表中装载数据（Load）"></a>4.1.1 向表中装载数据（Load）</h3><p>1) 语法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">load data [local] inpath &apos;/opt/module/datas/student.txt&apos; [overwrite] into table student [partition (partcol1=val1,…)];</span><br></pre></td></tr></table></figure>
+<p>（1）load data:表示加载数据</p>
+<p>（2）local:表示从本地加载数据到hive表；否则从HDFS加载数据到hive表</p>
+<p>（3）inpath:表示加载数据的路径</p>
+<p>（4）into table:表示加载到哪张表</p>
+<p>（5）student:表示具体的表</p>
+<p>（6）overwrite:表示覆盖表中已有数据，否则表示追加</p>
+<p>（7）partition:表示上传到指定分区</p>
+<p>2）实操案例</p>
+<ol>
+<li><p>创建一张表</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create table student(id string, name string) row format delimited fields terminated by &apos;\t&apos;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>加载本地文件到hive</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">load data local inpath &apos;/opt/module/datas/student.txt&apos; into table default.student;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>加载HDFS文件到hive中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//上传文件到HDFS</span><br><span class="line">dfs -put /opt/module/datas/student.txt /user/hive;</span><br><span class="line">//加载HDFS上数据</span><br><span class="line">load data inpath &apos;/user/hive/student.txt&apos; into table default.student;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>加载数据覆盖表中已有的数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//上传文件到HDFS</span><br><span class="line">dfs -put /opt/module/datas/student.txt /user/hive;</span><br><span class="line">//加载数据覆盖表中已有的数据</span><br><span class="line">load data inpath &apos;/user/atguigu/hive/student.txt&apos; overwrite into table default.student;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="4-1-2-通过查询语句向表中插入数据（Insert）"><a href="#4-1-2-通过查询语句向表中插入数据（Insert）" class="headerlink" title="4.1.2 通过查询语句向表中插入数据（Insert）"></a>4.1.2 通过查询语句向表中插入数据（Insert）</h3><ol>
+<li><p>创建一张分区表</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create table student(id string, name string) partitioned by (month string) row format delimited fields terminated by &apos;\t&apos;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>基本插入数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into table student partition(month=&apos;201709&apos;) values(&apos;1004&apos;,&apos;wangwu&apos;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>基本模式插入（根据单张表查询结果）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">insert overwrite table student partition(month=&apos;201708&apos;)</span><br><span class="line">select id, name from student where month=&apos;201709&apos;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>多插入模式（根据多张表查询结果）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">from student</span><br><span class="line">insert overwrite table student partition(month=&apos;201707&apos;)</span><br><span class="line">select id, name where month=&apos;201709&apos;</span><br><span class="line">insert overwrite table student partition(month=&apos;201706&apos;)</span><br><span class="line">select id, name where month=&apos;201709&apos;;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="4-1-3-查询语句中创建表并加载数据（as-select）"><a href="#4-1-3-查询语句中创建表并加载数据（as-select）" class="headerlink" title="4.1.3 查询语句中创建表并加载数据（as select）"></a>4.1.3 查询语句中创建表并加载数据（as select）</h3><p>根据查询结果创建表（查询的结果会添加到新创建的表中）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">create table if not exists student3</span><br><span class="line">as select id, name from student;</span><br></pre></td></tr></table></figure>
+<h3 id="4-1-4-创建表时通过location指定加载数据路径"><a href="#4-1-4-创建表时通过location指定加载数据路径" class="headerlink" title="4.1.4 创建表时通过location指定加载数据路径"></a>4.1.4 创建表时通过location指定加载数据路径</h3><ol>
+<li><p>创建表，<strong>并指定在hdfs上的位置</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create table if not exists student5(id int, name string)</span><br><span class="line">row format delimited fields terminated by &apos;\t&apos;</span><br><span class="line">location &apos;/user/hive/warehouse/student5&apos;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>上传数据到hdfs上</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dfs -put /opt/module/datas/student.txt  /user/hive/warehouse/student5;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查询数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from student5;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="4-1-5-import数据到指定hive表中"><a href="#4-1-5-import数据到指定hive表中" class="headerlink" title="4.1.5 import数据到指定hive表中"></a>4.1.5 import数据到指定hive表中</h3><p>先用export导出后，再将数据导入。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import table student2 partition(month=&apos;201709&apos;) from &apos;/user/hive/warehouse/export/student&apos;;</span><br></pre></td></tr></table></figure>
+<h2 id="4-2-数据导出"><a href="#4-2-数据导出" class="headerlink" title="4.2 数据导出"></a>4.2 数据导出</h2><h3 id="4-2-1-Insert-导出"><a href="#4-2-1-Insert-导出" class="headerlink" title="4.2.1 Insert 导出"></a>4.2.1 Insert 导出</h3><ol>
+<li><p>将查询的结果导出到本地</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">insert overwrite local directory &apos;/opt/module/datas/export/student&apos;</span><br><span class="line">select * from student;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将查询的结果格式化导出到本地</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">insert overwrite local directory &apos;/opt/module/datas/export/student1&apos;</span><br><span class="line">ROW FORMAT DELIMITED FIELDS TERMINATED BY &apos;\t&apos; COLLECTION ITEMS TERMINATED BY &apos;\n&apos;</span><br><span class="line">select * from student;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将查询的<strong>结果导出到HDFS上</strong>(没有local)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">insert overwrite directory &apos;/user/atguigu/hive/warehouse/student2&apos;</span><br><span class="line">ROW FORMAT DELIMITED FIELDS TERMINATED BY &apos;\t&apos; COLLECTION ITEMS TERMINATED BY &apos;\n&apos;</span><br><span class="line">select * from student;</span><br></pre></td></tr></table></figure>
+<h3 id="4-2-2-Hadoop命令导出到本地"><a href="#4-2-2-Hadoop命令导出到本地" class="headerlink" title="4.2.2 Hadoop命令导出到本地"></a>4.2.2 Hadoop命令导出到本地</h3></li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dfs -get /user/hive/warehouse/student/month=201709/000000_0  /opt/module/datas/export/student3.txt;</span><br></pre></td></tr></table></figure>
+<h3 id="4-2-3-Hive-Shell-命令导出"><a href="#4-2-3-Hive-Shell-命令导出" class="headerlink" title="4.2.3 Hive Shell 命令导出"></a>4.2.3 Hive Shell 命令导出</h3><p>基本语法：（hive -f/-e 执行语句或者脚本 &gt; file）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/hive -e &apos;select * from default.student;&apos; &gt; /opt/module/datas/export/student4.txt;</span><br></pre></td></tr></table></figure>
+<h3 id="4-2-4-Export导出到HDFS上"><a href="#4-2-4-Export导出到HDFS上" class="headerlink" title="4.2.4 Export导出到HDFS上"></a>4.2.4 Export导出到HDFS上</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export table default.student to &apos;/user/hive/warehouse/export/student&apos;;</span><br></pre></td></tr></table></figure>
+<h2 id="4-3-清除表中数据（Truncate）"><a href="#4-3-清除表中数据（Truncate）" class="headerlink" title="4.3 清除表中数据（Truncate）"></a>4.3 清除表中数据（Truncate）</h2><p>注意：Truncate只能删除管理表，不能删除外部表中数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">truncate table student;</span><br></pre></td></tr></table></figure>
+<h1 id="5-查询"><a href="#5-查询" class="headerlink" title="5. 查询"></a>5. 查询</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SELECT [ALL | DISTINCT] select_expr, select_expr, ...</span><br><span class="line">  FROM table_reference</span><br><span class="line">  [WHERE where_condition]</span><br><span class="line">  [GROUP BY col_list]</span><br><span class="line">  [ORDER BY col_list]</span><br><span class="line">  [CLUSTER BY col_list</span><br><span class="line">    | [DISTRIBUTE BY col_list] [SORT BY col_list]</span><br><span class="line">  ]</span><br><span class="line"> [LIMIT number]</span><br></pre></td></tr></table></figure>
+<h2 id="5-1-基本查询"><a href="#5-1-基本查询" class="headerlink" title="5.1 基本查询"></a>5.1 基本查询</h2><h3 id="5-1-1-全表和特定字段查询"><a href="#5-1-1-全表和特定字段查询" class="headerlink" title="5.1.1 全表和特定字段查询"></a>5.1.1 全表和特定字段查询</h3><ol>
+<li><p>全表查询</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from emp;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>选择特定列查询</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select empno, ename from emp;</span><br></pre></td></tr></table></figure>
+<p>注意：</p>
+<p>（1）SQL 语言大小写不敏感。</p>
+<p>（2）SQL 可以写在一行或者多行</p>
+<p>（3）关键字不能被缩写也不能分行</p>
+<p>（4）各子句一般要分行写。</p>
+<p>（5）使用缩进提高语句的可读性。</p>
+</li>
+</ol>
+<h3 id="5-1-2-列别名"><a href="#5-1-2-列别名" class="headerlink" title="5.1.2 列别名"></a>5.1.2 列别名</h3><p>别名紧跟列名，也可以在列名和别名之间加入关键字‘AS’</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select ename AS name, deptno dn from emp;</span><br></pre></td></tr></table></figure>
+<h3 id="5-1-3-算术运算符"><a href="#5-1-3-算术运算符" class="headerlink" title="5.1.3 算术运算符"></a>5.1.3 算术运算符</h3><table>
+<thead>
+<tr>
+<th>A+B</th>
+<th>A和B 相加</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A-B</td>
+<td>A减去B</td>
+</tr>
+<tr>
+<td>A*B</td>
+<td>A和B 相乘</td>
+</tr>
+<tr>
+<td>A/B</td>
+<td>A除以B</td>
+</tr>
+<tr>
+<td>A%B</td>
+<td>A对B取余</td>
+</tr>
+<tr>
+<td>A&amp;B</td>
+<td>A和B按位取与</td>
+</tr>
+<tr>
+<td>A\</td>
+<td>B</td>
+<td>A和B按位取或</td>
+</tr>
+<tr>
+<td>A^B</td>
+<td>A和B按位取异或</td>
+</tr>
+<tr>
+<td>~A</td>
+<td>A按位取反</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//实例</span><br><span class="line">select sal*0.8 from emp;</span><br></pre></td></tr></table></figure>
+<h3 id="6-1-4-常用函数（聚合函数）"><a href="#6-1-4-常用函数（聚合函数）" class="headerlink" title="6.1.4 常用函数（聚合函数）"></a>6.1.4 常用函数（聚合函数）</h3><p>count(), max(), min(), sum(), avg();</p>
+<h3 id="6-1-5-LIMIT语句"><a href="#6-1-5-LIMIT语句" class="headerlink" title="6.1.5 LIMIT语句"></a>6.1.5 LIMIT语句</h3><p>一般的查询会返回多行数据。LIMIT子句用于限制返回的行数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from emp limit 5;</span><br></pre></td></tr></table></figure>
+<h2 id="5-2-Where-语句"><a href="#5-2-Where-语句" class="headerlink" title="5.2 Where 语句"></a>5.2 Where 语句</h2><p>…</p>
+<h2 id="5-3-分组"><a href="#5-3-分组" class="headerlink" title="5.3 分组"></a>5.3 分组</h2><h3 id="5-3-1-GROUP-BY语句"><a href="#5-3-1-GROUP-BY语句" class="headerlink" title="5.3.1 GROUP BY语句"></a>5.3.1 GROUP BY语句</h3><p>GROUP BY语句通常会和聚合函数一起使用</p>
+<ol>
+<li><p>计算emp表每个部门的平均工资</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select t.deptno, avg(t.sal) avg_sal from emp t group by t.deptno;</span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+<li><p>计算emp每个部门中每个岗位的最高薪水</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select t.deptno, t.job, max(t.sal) max_sal from emp t group by t.deptno, t.job;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="5-3-2-HAVING语句"><a href="#5-3-2-HAVING语句" class="headerlink" title="5.3.2 HAVING语句"></a>5.3.2 HAVING语句</h3><ol>
+<li><p>having与where不同点</p>
+<ul>
+<li>where针对表中的列发挥作用，查询数据；<strong>having针对查询结果中的列发挥作用</strong>，筛选数据。</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>where后面不能写分组函数，而having后面可以使用分组函数。</li>
+<li><strong>having只用于group by分组统计语句。</strong></li>
+</ul>
+<ol start="2">
+<li><p>实例</p>
+<ul>
+<li><p>求每个部门的平均工资</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select deptno, avg(sal) from emp group by deptno;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>求每个部门的平均薪水大于2000的部门</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select deptno, avg(sal) avg_sal from emp group by deptno having avg_sal &gt; 2000;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="5-4-JOIN-语句"><a href="#5-4-JOIN-语句" class="headerlink" title="5.4 JOIN 语句"></a>5.4 JOIN 语句</h2><h3 id="5-4-1-等值连接"><a href="#5-4-1-等值连接" class="headerlink" title="5.4.1 等值连接"></a>5.4.1 等值连接</h3><p>Hive支持通常的SQL JOIN语句，但是只支持等值连接，不支持非等值连接。</p>
+<p>实例：根据员工表和部门表中的部门编号相等，查询员工编号、员工名称和部门编号；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select e.empno, e.ename, d.deptno, d.dname from emp e join dept d on e.deptno = d.deptno;</span><br></pre></td></tr></table></figure>
+<h3 id="5-4-2-左外，右外连接"><a href="#5-4-2-左外，右外连接" class="headerlink" title="5.4.2 左外，右外连接"></a>5.4.2 左外，右外连接</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//左外连接：JOIN操作符左边表中符合WHERE子句的所有记录将会被返回。</span><br><span class="line">select e.empno, e.ename, d.deptno from emp e left join dept d on e.deptno = d.deptno;</span><br><span class="line">//右外连接：JOIN操作符右边表中符合WHERE子句的所有记录将会被返回。</span><br><span class="line">select e.empno, e.ename, d.deptno from emp e right join dept d on e.deptno = d.deptno;</span><br></pre></td></tr></table></figure>
 
     </div>
   </div>
