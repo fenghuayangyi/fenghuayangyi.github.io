@@ -7,12 +7,12 @@
   
   
   
-  <title>归档: 2019/5 | shaohua&#39;s blog</title>
+  <title>MapReduce笔记 | shaohua&#39;s blog</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
   
-    <meta name="keywords" content="shaohua, blog">
+    <meta name="keywords" content="大数据,Hadoop,">
   
 
   <script type="text/javascript">
@@ -166,57 +166,173 @@
   })
 </script>
 
-      <div class="container">
-  <div class="timeline">
-  <span class="archive-move-on"></span>
-  <span class="archive-page-counter">
-    
-      <span>Wow! 一共有 28 篇文章</span>
-    
-  </span>
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
   
+
+<div class="post">
+  <h1 class="article-title">
+    <span>MapReduce笔记</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-10-10
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+  </div>
+
   
-    <div class="collection-title">
-      <h2>
-        <span>2019</span>
-      </h2>
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h1 id="1-MapReduce二次排序过程"><a href="#1-MapReduce二次排序过程" class="headerlink" title="1. MapReduce二次排序过程"></a>1. MapReduce二次排序过程</h1><p>二次排序(<code>secondary sort</code>)问题是指在<code>Reduce</code>阶段对某个键关联的值排序。<strong>利用二次排序技术,可以对传入<code>Reduce</code>的 <em>值</em> 完成 升序/降序 排序</strong>。</p>
+<p><code>MapReduce</code>框架会自动<strong>对Map生成的键完成排序</strong>. 所以, 在启动Reduce之前,中间文件 <code>key-value</code> 是按照<strong><code>key</code>有序的(而不是按照值有序)</strong>.它们的值的顺序有可能是任意的. </p>
+<h2 id="二次排序问题引入"><a href="#二次排序问题引入" class="headerlink" title="二次排序问题引入"></a>二次排序问题引入</h2><p>对于Reduce的值进行排序至少有两种方案，这两种方案在<code>MapReduce/Hadoop</code> 和 <code>Spark</code>框架中都可以使用。</p>
+<ul>
+<li><p>第一种方案是让<code>Reduce</code>读取和缓存给定<code>key</code>的所有的<code>value</code>, 然后在<code>Reduce</code>中对这些值完成排序.</p>
+<p>(例如: 把一个<code>key</code>对应的所有<code>value</code>放到一个<code>Array</code>或<code>List</code>中,再排序). 但是这种方式有局限性, 如果数据量较少还可以使用,如果数据量太大,一个<code>Reduce</code>中放不下所有的值,就会导致内存溢出(<code>OutOfMemory</code>).</p>
+</li>
+<li><p>第二种方式是使用<code>MapReduce</code>框架来对值进行排序。因为<code>MapReduce</code>框架会自动对<code>Map</code>生成的文件的<code>key</code>进行排序, 所以我们把需要排序的<code>value</code>增加到这个<code>key</code>上,这样让框架对这个<code>new_key</code>进行排序,来实现我们的目标.</p>
+</li>
+</ul>
+<h2 id="二次排序方法小结"><a href="#二次排序方法小结" class="headerlink" title="二次排序方法小结"></a>二次排序方法小结</h2><ol>
+<li>使用键值转换的设计模式，来构造一个组合key（key, v1）。其中<code>v1</code>是次键(<code>secondary key</code>)。</li>
+<li>让<code>MapReduce</code>执行框架完成排序.</li>
+<li>重写分区器（GroupComparator）,根据组合key<code>(k, v1)</code> 中的 <code>k</code> 进行分区.（这样才能实现既能以key为一个组分配同一个reduce，同时还实现了对v1的排序）</li>
+</ol>
+<h1 id="2-hashcode方法重写"><a href="#2-hashcode方法重写" class="headerlink" title="2. hashcode方法重写"></a>2. hashcode方法重写</h1><p>在MapReduce中如果需要用到javabean作为key来接收和传递数据，最好对javabean重写hashcode方法，目的是shuffle阶段在进行分区时会根据key进行hash, 重写hash可以尽量避免同一个key的数据分区错误。</p>
+<h1 id="3-关于迭代器的理解"><a href="#3-关于迭代器的理解" class="headerlink" title="3. 关于迭代器的理解"></a>3. 关于迭代器的理解</h1><ol>
+<li>迭代器只能迭代一次，然后再调用就没有数据了。</li>
+<li>Reduce中的迭代器迭代过程可以理解为不走内存，所以使用迭代器不用考虑数据的大小，不会导致内存溢出。</li>
+</ol>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : fenghuayangyi <br>
+        
+        原文链接 : <a href>https://github.com/fenghuayangyi/2019/10/10/MapReduce笔记/</a><br>
+        版权声明 : 本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。
+        </blockquote>
+      </div>
     </div>
   
   
   
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2019/05/19/scala/">
-          <span>Scala入门</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        05-19
-      </div>
-    </header>
-  </article>
+
   
+    <div id="reward">
   
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2019/05/19/计算机基础知识点/">
-          <span>计算机组成原理知识点</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        05-19
-      </div>
-    </header>
-  </article>
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
   
-</div>
-  <nav class="page-navigation">
+  <button id="reward-btn">
     
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/Hadoop/">
+              #Hadoop
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2019/05/19/scala/" target="_self">Scala入门</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2019/10/15/spark笔记/" target="_self">Spark笔记</a>
+        <i class="iconfont icon-next"></i>
+      </div>
     
   </nav>
+
+   
+
+   
+
 </div>
+
 
       <footer>
   <p class="site-info">
