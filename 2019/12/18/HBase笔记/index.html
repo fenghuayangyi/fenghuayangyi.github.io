@@ -7,7 +7,7 @@
   
   
   
-  <title>HBase基础 | shaohua&#39;s blog</title>
+  <title>HBase笔记 | shaohua&#39;s blog</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -181,12 +181,12 @@
 
 <div class="post">
   <h1 class="article-title">
-    <span>HBase基础</span>
+    <span>HBase笔记</span>
   </h1>
   <div class="article-top-meta">
     <span>
       发布 : 
-      2019-10-18
+      2019-12-18
     </span>
     
       <span>
@@ -203,8 +203,104 @@
 
   <div class="article-content">
     <div class="markdown-body">
-      <h1 id="HBase"><a href="#HBase" class="headerlink" title="HBase"></a>HBase</h1><p>或者说 HBase是在Hadoop和ZooKeeper之上构建<strong>非关系型</strong>，<strong>面向列存储</strong>的开源分布式结构化数据存储系统。</p>
-<p>HBase的部署前提：Zookeeper + Hadoop</p>
+      <h1 id="HBase"><a href="#HBase" class="headerlink" title="HBase"></a>HBase</h1><p>HBase是在Hadoop和ZooKeeper之上构建<strong>非关系型</strong>，<strong>面向列存储</strong>的开源分布式结构化数据存储系统。</p>
+<p>HBase的<strong>部署前提</strong>：<strong>Zookeeper</strong> + <strong>Hadoop</strong></p>
+<h2 id="0-快速回顾HBase"><a href="#0-快速回顾HBase" class="headerlink" title="0. 快速回顾HBase"></a>0. 快速回顾HBase</h2><p>HBase采用的是Key/Value的存储方式，这意味着，即使随着数据量增大，也几乎不会导致查询的性能下降。</p>
+<p>HBase并不快，只是当数据量很大的时候他慢的不明显。</p>
+<p>NoSQL生态圈的通病：不支持表关联。因此不要盲目使用group by 和 order by。</p>
+<p>最好不要使用hbase的情况：<br>    1.主要需求是数据分析，比如做报表。<br>    2.单表数据量不超过千万。<br>这些情况可以使用MySQL或者Oracle之类的产品。</p>
+<p>关于HBase架构：</p>
+<p>​    两种服务器：Master服务器和RegionServer服务器<br>    一般一个HBase集群有一个Master服务器和几个RegionServer服务器。<br>    Master服务器负责维护表结构信息，实际的数据都存储在RegionServer服务器上。</p>
+<p>特殊：客户端获取数据由客户端直连RegionServer的，<br>所以你会发现Master挂掉之后你依然可以查询数据，但就是不能新建表了。</p>
+<p>RegionServer是直接负责存储数据的服务器。RegionServer保存的表数据直接存储在Hadoop的HDFS上。<br>并且<strong>RegionServer非常依赖ZooKeeper服务，可以说没有ZooKeeper就没有HBase</strong>。</p>
+<p><strong>ZooKeeper</strong>管理了HBase所有RegionServer的信息，包括具体的数据段存放在哪个RegionServer上。<br>客户端每次与HBase连接，其实都是先与ZooKeeper通信，查询出哪个RegionServer需要连接，然后再连接RegionServer。</p>
+<h3 id="0-1-HBase基本概念回顾"><a href="#0-1-HBase基本概念回顾" class="headerlink" title="0.1 HBase基本概念回顾"></a>0.1 HBase基本概念回顾</h3><p>1.Region是什么</p>
+<ul>
+<li>Region就是一段（很多行）数据的集合。HBase中的表一般拥有一个到多个Region。</li>
+<li>Region有以下特性：<ul>
+<li>Region不能跨服务器，一个RegionServer上有一个或者多个Region。</li>
+<li>数据量小的时候，一个Region足以存储所有数据；但是，当数据量大的时候，HBase会拆分Region。</li>
+<li>当HBase在进行负载均衡的时候，也有可能会从一台RegionServer上把Region移动到另一台RegionServer上。</li>
+<li><strong>Region是基于HDFS</strong>的，它的所有数据存取操作都是调用了HDFS的客户端接口来实现的。</li>
+</ul>
+</li>
+</ul>
+<p>2.RegionServer是什么</p>
+<ul>
+<li>RegionServer就是存放Region的容器，直观上说就是服务器上的一个服务。</li>
+<li>一般来说，一个服务器只会安装一个RegionServer服务。</li>
+<li>当客户端从ZooKeeper获取RegionServer的地址后，它会直接从RegionServer获取数据。</li>
+</ul>
+<p>3.Master是什么</p>
+<ul>
+<li><p>Master在HBase中Master的角色不像领导，更像是打杂的。</p>
+</li>
+<li><p>客户端从 ZooKeeper获取了RegionServer的地址后，会直接从RegionServer获取数据。插入删除等也一样。</p>
+</li>
+<li><p>Master只负责各种协调工作（其实就是打杂），比如建表、删表、移动Region、合并等操作。</p>
+<p>共性就是需要跨RegionServer，这些操作由哪个RegionServer来执行都不合适，所以HBase就交给Master了。</p>
+</li>
+<li><p>好处是大大降低了集群对Master的依赖。而Master节点一般只有一个到两个，防止单点故障。</p>
+</li>
+</ul>
+<p>4.关于rowkey</p>
+<ul>
+<li><p>完全是由用户指定的一串不重复的字符串。</p>
+</li>
+<li><p>HBase中无法根据某个column来排序，系统永远是根据rowkey按照字典序来排序的。</p>
+</li>
+<li><p>如果你插入HBase的时候，不小心用了之前已经存在的rowkey，就进行更新操作。</p>
+<p>之前的值会放在这个单元格的历史记录里面，只要带上版本参数就可以得到这个值。</p>
+</li>
+</ul>
+<p>5.什么是单元格</p>
+<ul>
+<li>一个列上可以存储多个版本的单元格。</li>
+<li>单元格是数据存储的最小单元。</li>
+</ul>
+<p>6.列族</p>
+<ul>
+<li><p>HBase中，<strong>若干列可以组成列族</strong>（column family）。</p>
+</li>
+<li><p><strong>建表</strong>的时候是<strong>不需要指定列的</strong>，因为列是可变的，它非常灵活，<strong>唯一需要确定的就是列族</strong>。</p>
+</li>
+<li><p>一个表有几个列族是一开始就定好的。</p>
+</li>
+<li><p>此外，表的很多属性，比如过期时间、数据块缓存以及是否压缩等都是定义在列族上的。同一个表里的不同列族可以有完全不同的属性配置，但是同一个列族内的所有列都会有相同的属性。</p>
+</li>
+<li><p>在HBase中一个列的名称前面总是带着它所属的列族。<strong>列名称的规范是列族:列名</strong>。</p>
+</li>
+<li><p>列族存在的意义是：HBase会把相同列族的列尽量放在同一台机器上，所以说，如果想让某几个列被放到一起，你就给他们定义相同的列族。</p>
+</li>
+<li><p>一个表要设置多少个列族比较合适？官方的建议是：越少越好，因为HBase并不希望大家指定太多的列族。</p>
+<p>因为没有必要，虽然HBase是分布式数据库，但是数据在同一台物理机上依然会加速数据的查询过程。</p>
+</li>
+</ul>
+<p>7.单元格</p>
+<ul>
+<li><p>一个列上可以存储多个版本的值在多个单元格里面，用版本号（Version）来区分。</p>
+<p>唯一确定一条结果的表达式应该是行键:列族:列:版本号（rowkey:column family:column:version）</p>
+<p>版本号是可以省略的。如果你不写版本号，HBase默认获取最后一个版本的数据返回。</p>
+<p>每个列或者单元格的值都被赋予一个时间戳。默认是由系统制定的，也可以由用户显示指定。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(rowKey, family, qualifier, ts, value)</span><br></pre></td></tr></table></figure>
+<p>Table可以直接理解为表，rowKey为主键，而Family和Qualifier其实都可以理解为列，一个Family下面可以有多个Qualifier，所以可以简单的理解为，HBase中的列是二级列，也就是说Family是第一级列，Qualifier是第二级列。两个是父子关系。</p>
+<p>8.region和行</p>
+<ul>
+<li>一个Region就是多个行的集合。</li>
+<li>在Region中行的排序按照行键（rowkey）字典排序。</li>
+</ul>
+<p>9.过滤器</p>
+<ul>
+<li>相当于where语句，进行过滤</li>
+<li>过滤器被用户创建出来后会被序列化为可以网络传输的格式，然后被分发到各个RegionServer。<br>不满足过滤器条件的结果就不会被返回客户端。</li>
+</ul>
+<p>10.协处理器 observer 和 endpoint</p>
+<ul>
+<li>observer 协处理器相当于 触发器。</li>
+<li>endpoint 协处理器相当于 存储过程。</li>
+</ul>
 <h2 id="1-HBase-介绍"><a href="#1-HBase-介绍" class="headerlink" title="1. HBase 介绍"></a>1. HBase 介绍</h2><ul>
 <li><p>HBase和Hive</p>
 <ol>
@@ -363,6 +459,9 @@
 </li>
 <li><p><strong>Compact合并操作 和 Split操作</strong></p>
 <p>当<strong>Storefile越来越多</strong>，会触发Compact<strong>合并操作</strong>，把过多的Storefile合并成一个大的Storefile。当<strong>Storefile越来越大</strong>，Region也会越来越大，<strong>达到阈值后</strong>，会触发<strong>Split操作</strong>，<strong>将Region一分为二</strong>。</p>
+<p>总结：所以<strong>从大到小  region,Storefile, Memstore</strong></p>
+<p>当Memstore达到阈值，数据flush到StoreFile。当StoreFile文件数过多，Compact成大的Storefile。</p>
+<p>当Storefile越来越大，Region也会越来越大。当Region达到阈值，触发Split操作，将Region一分为二。</p>
 </li>
 </ol>
 <p><strong>PS: 因为内存空间的限制，溢写文件必定伴随着大量小文件的产生。</strong></p>
@@ -416,7 +515,7 @@
 <li><p><strong>create</strong></p>
 <p>创建表： create ‘table’,‘info’</p>
 <p>​            表名，列族名</p>
-<p>创建多个族： </p>
+<p><strong>创建多个族</strong>： </p>
 <p>create ‘table’,{NAME =&gt; ‘info1’}, {NAME =&gt; ‘info2’}, {NAME =&gt; ‘info3’}</p>
 </li>
 </ol>
@@ -599,7 +698,7 @@
         
           本文作者 : fenghuayangyi <br>
         
-        原文链接 : <a href>https://github.com/fenghuayangyi/2019/10/18/HBase/</a><br>
+        原文链接 : <a href>https://github.com/fenghuayangyi/2019/12/18/HBase笔记/</a><br>
         版权声明 : 本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。
         </blockquote>
       </div>
@@ -680,15 +779,9 @@
       <div class="nav-pre">
         <i class="iconfont icon-prev"></i>
         上一篇:
-        <a href="/2019/10/16/scala笔记/" target="_self">Scala笔记</a>
+        <a href="/2019/12/15/spark笔记/" target="_self">Spark笔记-RDD&SQL</a>
       </div>
     
-    
-      <div class="nav-next">
-        下一篇:
-        <a href="/2019/12/12/RabbitMQ/" target="_self">RabbitMQ</a>
-        <i class="iconfont icon-next"></i>
-      </div>
     
   </nav>
 

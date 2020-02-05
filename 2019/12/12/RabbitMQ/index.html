@@ -7,12 +7,12 @@
   
   
   
-  <title>分类: 大数据 | shaohua&#39;s blog</title>
+  <title>RabbitMQ | shaohua&#39;s blog</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
   
-    <meta name="keywords" content="shaohua, blog">
+    <meta name="keywords" content="MQ,消息队列,">
   
 
   <script type="text/javascript">
@@ -166,191 +166,209 @@
   })
 </script>
 
-      <div class="container">
-  <div class="timeline">
-  <span class="archive-move-on"></span>
-  <span class="archive-page-counter">
-    
-      <span>当前位于 1/1 页</span>
-    
-  </span>
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
   
+
+<div class="post">
+  <h1 class="article-title">
+    <span>RabbitMQ</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-12-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/MQ/">
+            MQ
+          </a>
+      </span>
+    
+    
+  </div>
+
   
-    <div class="collection-title">
-      <h2>
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h1 id="RabbitMQ"><a href="#RabbitMQ" class="headerlink" title="RabbitMQ"></a>RabbitMQ</h1><h2 id="1-什么是MQ"><a href="#1-什么是MQ" class="headerlink" title="1. 什么是MQ?"></a>1. 什么是MQ?</h2><ul>
+<li>消息队列（Message Queue，简称MQ），本质是个队列，FIFO先入先出，只不过队列中存放的内容是message而已。</li>
+<li>其主要用途：不同进程(Process)/线程(Thread)之间通信。</li>
+</ul>
+<p>为什么会产生消息队列？</p>
+<ul>
+<li>不同进程（process）之间传递消息时，两个进程之间耦合程度过高，改动一个进程，引发必须修改另一个进程。为了隔离这两个进程，在两进程间抽离出一层（一个模块）即消息队列，来传递消息。单独修改某一个进程，不会影响另一个。</li>
+<li>不同进程（process）之间传递消息时，为了实现标准化，将消息的格式规范化了。</li>
+<li>某一个进程接受的消息太多，一下子无法处理完，并且也有先后顺序，必须对收到的消息进行排队。</li>
+</ul>
+<h2 id="2-五种队列"><a href="#2-五种队列" class="headerlink" title="2. 五种队列"></a>2. 五种队列</h2><p>分类：</p>
+<ul>
+<li>简单队列（一对一）。耦合性高。生产者消费者一一对应，需要同时修改。</li>
+<li>Work queues。一个生产者，多个消费者共同处理所有的消息。</li>
+<li>交换机<ul>
+<li>Publish/Subscribe。一个生产者，多个消费者分别消费所有的信息。</li>
+<li>Routing。相对订阅，多了一个key。分别选择性消费信息。</li>
+<li>Topic。消费者，改进key。允许模糊匹配。</li>
+</ul>
+</li>
+</ul>
+<h3 id="1-简单队列"><a href="#1-简单队列" class="headerlink" title="1.简单队列"></a>1.简单队列</h3><p>P - 》  queue - 》 C</p>
+<p>P：消息的生产者, C：消息的消费者, queue :队列</p>
+<p>生产者将消息发送到队列，消费者从队列中获取消息。</p>
+<p>简单队列的生产者和消费者关系一对一。<br>但有时我们的需求，需要一个生产者，对应多个消费者，</p>
+<p>那就可以采用第二种模式<strong>Work模式</strong>。</p>
+<h3 id="2-Work模式（轮训和公平）"><a href="#2-Work模式（轮训和公平）" class="headerlink" title="2. Work模式（轮训和公平）"></a>2. Work模式（轮训和公平）</h3><p>P - 》  queue - 》 C1，C2</p>
+<p>一个生产者、2个消费者。</p>
+<p>但MQ中一个消息只能被一个消费者获取。即消息要么被C1获取，要么被C2获取。这种模式适用于类似集群，能者多劳。性能好的可以安排多消费，性能低的可以安排低消费。</p>
+<p>有两个概念：<strong>轮询分发</strong>（消费者获取到的消息的数量是相同的） ，<strong>公平分发</strong>（按消费者的能力分配消息）</p>
+<p>但<strong>如果面对我需要多个消费者都对这一消息进行消费的需求</strong>，这种模式显然就不适用了。</p>
+<p>那就可以采用第三种模式，订阅模式。</p>
+<h3 id="3-订阅模式"><a href="#3-订阅模式" class="headerlink" title="3. 订阅模式"></a>3. 订阅模式</h3><p>P - 》 X - 》  queue1,queue2  - 》 C1，C2</p>
+<ul>
+<li>1个生产者，多个消费者</li>
+<li>每一个消费者都有自己的一个队列</li>
+<li>生产者没有将消息直接发送到队列，而是发送到了交换机X</li>
+<li>每个队列都要绑定到交换机</li>
+<li>生产者发送的消息，经过交换机，到达队列，实现，一个消息被多个消费者获取的目的</li>
+</ul>
+<p>注意：一个消费者队列可以有多个消费者实例，只有其中一个消费者实例会消费。</p>
+<p>流程：</p>
+<ul>
+<li><strong>消息的生产者向交换机中发送消息</strong>。注意：消息发送到没有队列绑定的交换机时，消息将丢失，因为，交换机没有存储消息的能力，消息只能存在在队列中。</li>
+<li>各个消费者消费信息。</li>
+</ul>
+<p>同一个消息被多个消费者获取。</p>
+<p><strong>这种模式可以满足消费者发布一个消息，多个消费者消费同一信息的需求</strong>。</p>
+<p>但C1、C2消费的都是相同的数据，有时我们需要C1和C2消费的信息只有部分差异，比如我们需求：C1消费增加的数据，C2消费编辑、增加和删除的数据。</p>
+<p>引入第四种模式，<strong>路由模式</strong>。</p>
+<h3 id="4-路由模式"><a href="#4-路由模式" class="headerlink" title="4. 路由模式"></a>4. 路由模式</h3><p>路由模式是在订阅模式基础上的完善，可以<strong>在生产消息的时候，加入Key值</strong>，与key值匹配的消费者消费信息。</p>
+<p>但路由模式中，就如三中提到的C1、C2、如果C2对应的类型更多，就需要写很多key值。但其实它只与C1有一点差别。</p>
+<p>那就可以考虑第五种模式：通配符模式</p>
+<h3 id="5-通配符模式"><a href="#5-通配符模式" class="headerlink" title="5.通配符模式"></a>5.通配符模式</h3><p>通配符模式是在路由模式的升级，他允许key模糊匹配。</p>
+<p>其中*代表一个词，#代表一个或多个词。</p>
+<p>通过通配符模式我们就可以将C1对应的一个key准确定为item.add。而C2我们就不需要一一写出key值，而是用item.#代替即可。</p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
         
-          <span>分类 : 大数据</span>
         
-      </h2>
+          本文作者 : fenghuayangyi <br>
+        
+        原文链接 : <a href>https://github.com/fenghuayangyi/2019/12/12/RabbitMQ/</a><br>
+        版权声明 : 本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。
+        </blockquote>
+      </div>
     </div>
   
   
   
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2019/12/18/HBase笔记/">
-          <span>HBase笔记</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        12-18
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
       </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2019/12/15/spark笔记/">
-          <span>Spark笔记-RDD&SQL</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        12-15
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
       </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2019/12/15/sparksql/">
-          <span>SparkSQL</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        12-15
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2019/10/18/HBase/">
-          <span>HBase基础</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        10-18
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2019/10/16/scala笔记/">
-          <span>Scala笔记</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        10-16
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2019/10/15/Spark参数调优/">
-          <span>Spark参数调优</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        10-15
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2019/10/10/MapReduce笔记/">
-          <span>MapReduce笔记</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        10-10
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2019/04/22/Hive/">
-          <span>Hive入门</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        04-22
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2019/04/22/HiveSQL/">
-          <span>HiveSQL</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        04-22
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2019/04/12/MapReduce/">
-          <span>Hadoop之MapReduce</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        04-12
-      </div>
-    </header>
-  </article>
-  
-  
-    <div class="collection-title">
-      <h2>
-        <span>2018</span>
-      </h2>
-    </div>
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2018/12/28/Hadoop入门/">
-          <span>Hadoop入门</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        12-28
-      </div>
-    </header>
-  </article>
-  
+    
+  </div>
+
 </div>
-  <nav class="page-navigation">
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
     
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/消息队列/">
+              #消息队列
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2019/10/18/HBase/" target="_self">HBase基础</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2019/12/15/sparksql/" target="_self">SparkSQL</a>
+        <i class="iconfont icon-next"></i>
+      </div>
     
   </nav>
+
+   
+
+   
+
 </div>
+
 
       <footer>
   <p class="site-info">
