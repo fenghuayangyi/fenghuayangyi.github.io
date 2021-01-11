@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  
+  
+  <title>Scala 编码练习 | shaohua&#39;s blog</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Spark，Scala,Scala,">
+  
+
+  <script type="text/javascript">
+	$(document).ready(function() {
+	    //为超链接加上target='_blank'属性
+		$('a[href^="http"]').each(function() {
+			$(this).attr('target', '_blank');
+		});
+	});
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">Fenghuayangyi</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path>
+          
+            <a href="javascript:void(0);" v-else>抓到我</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://github.com/fenghuayangyi" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://blog.csdn.net/u011295626" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Scala 编码练习</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-05-19
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/Spark，Scala/">
+            Spark，Scala
+          </a>
+      </span>
+    
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="快捷键记录"><a href="#快捷键记录" class="headerlink" title="快捷键记录"></a>快捷键记录</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(ctrl+alt+l)    格式化的代码快捷键</span><br></pre></td></tr></table></figure>
+<h2 id="1-scala-输出方式"><a href="#1-scala-输出方式" class="headerlink" title="1.scala 输出方式"></a>1.scala 输出方式</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">val name = &quot;scala&quot;</span><br><span class="line">val age  = 15</span><br><span class="line">val url  = &quot;www.scala.com&quot;</span><br><span class="line"></span><br><span class="line">串通过+号连接（类似java）</span><br><span class="line">	println(&quot;name=&quot; + name + &quot; age=&quot; + age + &quot; url=&quot; + url)</span><br><span class="line">串通过 % 传值。(格式化输出)</span><br><span class="line">	printf(&quot;name=%s, age=%d, url=%s \n&quot;, name, age, url)</span><br><span class="line">字符串插值：通过$引用(类似PHP）</span><br><span class="line">	println(s&quot;name=$name, age=$age, url=$url&quot;)</span><br></pre></td></tr></table></figure>
+<h2 id="2-yield"><a href="#2-yield" class="headerlink" title="2.yield"></a>2.yield</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">循环返回值</span><br><span class="line">val res = for(i &lt;- 1 to 10) yield i * 2</span><br><span class="line">println(res)</span><br><span class="line">将遍历过程中处理的结果返回到一个新Vector集合中，使用yield关键字</span><br></pre></td></tr></table></figure>
+<h2 id="3-函数式编程"><a href="#3-函数式编程" class="headerlink" title="3.函数式编程"></a>3.函数式编程</h2><p>高阶函数，函数柯里化，参数(类型)推断，过程，惰性函数，异常处理</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line">函数的形参列表可以是多个, 如果函数没有形参，调用时 可以不带() </span><br><span class="line"></span><br><span class="line">高阶函数</span><br><span class="line">将其他函数作为参数或 返回值为一个函数 的函数</span><br><span class="line"></span><br><span class="line">    // 1.函数的第一个参数类型是另一个函数(函数别名：参数类型=&gt;返回值类型)</span><br><span class="line">    def apply(f: Int =&gt; String, v: Int) = f(v)</span><br><span class="line">    def fmtInt(n: Int) : String = &quot;[整数值&#123;&quot; + n + &quot;&#125;]&quot;</span><br><span class="line">    // 高阶函数的调用 函数名（函数参数，函数参数的参数）</span><br><span class="line">    def main(args: Array[String]): Unit = &#123;</span><br><span class="line">        println(apply(fmtInt, 1200))</span><br><span class="line">    &#125;</span><br><span class="line">    输出：[整数值&#123;1200&#125;]</span><br><span class="line"></span><br><span class="line">    // 2.函数的返回值是一个函数</span><br><span class="line">    def addBy(n: Int) = &#123;</span><br><span class="line">        (d : Double) =&gt; n + d </span><br><span class="line">    &#125;</span><br><span class="line">    def main(args: Array[String]): Unit = &#123;</span><br><span class="line">        println(addBy(50)(80.223))</span><br><span class="line">    &#125;</span><br><span class="line">    输出：130.223</span><br><span class="line"></span><br><span class="line">函数柯里化(Currying)：将原来接受多个参数的函数变成新的接受一个参数的函数的过程</span><br><span class="line">新函数的参数接受原来的第二个参数为唯一参数, 如果有n个参数, 就是把这个函数分解成n个新函数的过程。</span><br><span class="line">	柯里化就是证明了函数只需要一个参数而已</span><br><span class="line">    样例代码</span><br><span class="line">    // 原始函数, 有3个参数的函数</span><br><span class="line">    def addMulti(a: Int, b: Int, c: Int) = (a + b) * c</span><br><span class="line">    // 函数A的返回值是一个函数B, 函数B的返回值是函数C</span><br><span class="line">    def addMulti(a: Int) = &#123;</span><br><span class="line">        (b: Int) =&gt; (c: Int) =&gt; (a + b) * c  </span><br><span class="line">    &#125;</span><br><span class="line">    输出：2600</span><br><span class="line"></span><br><span class="line">    函数柯里化最佳实践   比较两个字符串在忽略大小写的情况下是否相等</span><br><span class="line">    方式1: 简单的方式,使用一个函数完成.</span><br><span class="line">    def eq2(s1: String)(s2: String): Boolean = &#123;</span><br><span class="line">        s1.toLowerCase == s2.toLowerCase</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //方式2：使用稍微高级的用法(隐式类)：形式为 str.方法()</span><br><span class="line">    //比较字符串是否相等是两件事，先转成小写[函数]， 再比较是否相等[函数]</span><br><span class="line">    def eq(s1: String, s2: String): Boolean = &#123;</span><br><span class="line">        s1.equals(s2)</span><br><span class="line">    &#125;</span><br><span class="line">    implicit class TestEq(s: String) &#123;</span><br><span class="line">        def checkEq(ss: String)(f: (String, String) =&gt; Boolean): Boolean = &#123;</span><br><span class="line">            f(s.toLowerCase, ss.toLowerCase)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    str1.checkEq(str2)(_.equals(_))</span><br><span class="line"></span><br><span class="line">参数(类型)推断</span><br><span class="line">    应用实例</span><br><span class="line">    val list = List(1, 2, 3, 4)</span><br><span class="line">    println(list.map((x:Int)=&gt;x + 1)) </span><br><span class="line">    println(list.map((x)=&gt;x + 1))</span><br><span class="line">    println(list.map(x=&gt;x + 1))</span><br><span class="line">    println(list.map(_ + 1))</span><br><span class="line">    val res = list.reduce(_+_)</span><br><span class="line"></span><br><span class="line">过程</span><br><span class="line">        将函数的返回类型为Unit的函数称之为过程(procedure)，</span><br><span class="line">        ## 如果明确函数没有返回值，那么等号可以省略 ##</span><br><span class="line">    //函数无返回值，使用unit来说明</span><br><span class="line">    //称为过程（procedure）</span><br><span class="line">    def func(name:String):Unit=&#123;</span><br><span class="line">        println(name+&quot; hello!&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">    等价于，去除=</span><br><span class="line">      def func(name:String)&#123;</span><br><span class="line">        println(name+&quot; hello!&quot;)</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">    ###如果函数声明时没有返回值类型，但是有 = 号，可以进行类型推断最后一行代码。这时这个		函数实际是有返回值的，该函数并不是过程。</span><br><span class="line">    def func(name:String)=&#123;</span><br><span class="line">        name+&quot; hello!&quot;</span><br><span class="line">      &#125;</span><br><span class="line">    函数返回值：String类型</span><br><span class="line"></span><br><span class="line">惰性函数</span><br><span class="line">	当函数返回值被声明为lazy时，函数的执行将被推迟，直到我们首次对此取值，该函数才会执		行。这种函数我们称之为惰性函数。java中称为懒加载。</span><br><span class="line">	def main(args: Array[String]): Unit = &#123;</span><br><span class="line">        lazy val res = sum(10, 20)</span><br><span class="line">        println(&quot;-----------------&quot;)</span><br><span class="line">        println(&quot;res=&quot; + res) </span><br><span class="line">    &#125;</span><br><span class="line">    def sum(n1 : Int, n2 : Int): Int = &#123;</span><br><span class="line">        println(&quot;sum() 执行了..&quot;)</span><br><span class="line">        return  n1 + n2</span><br><span class="line">    &#125;</span><br><span class="line">	注意事项和细节</span><br><span class="line">    lazy 不能修饰 var 类型的变量</span><br><span class="line">    不但是 在调用函数时，加了 lazy ,会导致函数的执行被推迟，</span><br><span class="line">    我们在声明一个变量时，如果给声明了 lazy ,那么变量值得分配也会推迟。 </span><br><span class="line">    比如 lazy val i = 10</span><br><span class="line"></span><br><span class="line">Scala异常处理举例----模式匹配</span><br><span class="line">    try &#123;</span><br><span class="line">          val r = 10 / 0</span><br><span class="line">    &#125; catch &#123;</span><br><span class="line">          case ex: ArithmeticException=&gt; println(“捕获了除数为零的算术异常&quot;)</span><br><span class="line">          case ex: Exception =&gt; println(&quot;捕获了异常&quot;)</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">          // 最终要执行的代码</span><br><span class="line">          println(&quot;scala finally...&quot;)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="4-面向对象基础"><a href="#4-面向对象基础" class="headerlink" title="4.面向对象基础"></a>4.面向对象基础</h2><p>类，属性，属性高级，构造器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">Scala中，一切皆为对象。 </span><br><span class="line">如何定义类</span><br><span class="line">    [修饰符] class 类名 &#123;</span><br><span class="line">       类体</span><br><span class="line">    &#125; </span><br><span class="line">    定义类的注意事项</span><br><span class="line">    1.scala语法中，类并不声明为public，所有这些类都具有公有可见性(即默认就是public)</span><br><span class="line">    2.一个Scala源文件可以包含多个类. </span><br><span class="line"></span><br><span class="line">属性/成员变量</span><br><span class="line">	1.Scala中声明一个属性,必须显示的初始化</span><br><span class="line">	2.如果赋值为null,则一定要加类型，因为不加类型, 那么该属性的类型就是Null类型.</span><br><span class="line">	3.在定义属性时，暂时不赋值，也可以使用符号_(下划线)，让系统分配默认值.</span><br><span class="line"></span><br><span class="line">属性高级</span><br><span class="line">JavaBeans规范定义了Java的属性是像getXxx（）和setXxx（）的方法。</span><br><span class="line">####将Scala字段加@BeanProperty时，这样会自动生成规范的 setXxx/getXxx 方法。</span><br><span class="line">	可以使用 对象.setXxx() 和 对象.getXxx() 来调用属性。</span><br><span class="line"></span><br><span class="line">构造器（又叫构造方法）</span><br><span class="line">构造器包括： 主构造器（一个） 和 辅助构造器(多个)</span><br><span class="line">class 类名(形参列表) &#123;  // 主构造器</span><br><span class="line">   // 类体</span><br><span class="line">   def  this(形参列表) &#123;  // 辅助构造器</span><br><span class="line">   &#125;</span><br><span class="line">   def  this(形参列表) &#123;  //辅助构造器可以有多个...</span><br><span class="line">   &#125;</span><br><span class="line">&#125; </span><br><span class="line">辅助构造器 函数的名称this, 可以有多个，编译器通过不同参数（个数或类型）来区分.</span><br></pre></td></tr></table></figure>
+<h2 id="5-面向对象中级"><a href="#5-面向对象中级" class="headerlink" title="5.面向对象中级"></a>5.面向对象中级</h2><p>包、面向对象三大特性：封装、继承、多态</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line">package包</span><br><span class="line">	包的三大作用</span><br><span class="line">		1.区分相同名字的类</span><br><span class="line">		2.当类的数目增多时，便于管理</span><br><span class="line">		3.控制类的访问范围</span><br><span class="line">	Scala会自动引入的常用包 </span><br><span class="line">		java.lang.*  </span><br><span class="line">         scala包</span><br><span class="line">         Predef包</span><br><span class="line">	作用域原则：可以直接向上访问,访问父包中的内容</span><br><span class="line">		(提示：Java中子包使用父包的类，需要import)。</span><br><span class="line">	包名可以相对路径也可以绝对路径</span><br><span class="line">		//第一种形式</span><br><span class="line">         //@BeanProperty var age: Int = _</span><br><span class="line">         //第二种形式, 和第一种一样，都是相对路径引入</span><br><span class="line">         //@scala.beans.BeanProperty var age: Int = _</span><br><span class="line">         //第三种形式, 是绝对路径引入，可以解决包名冲突</span><br><span class="line">         @_root_. scala.beans.BeanProperty var age: Int = _</span><br><span class="line">	包可以包含Class、Object和特质Trait</span><br><span class="line">	</span><br><span class="line">	包的可见性</span><br><span class="line">		当属性访问权限为默认时，从底层看属性是private</span><br><span class="line">		当方法访问权限为默认时，默认为public访问权限</span><br><span class="line">		private为私有权限，只在类的内部和伴生对象中可用 </span><br><span class="line">		protected为受保护权限,只能子类访问</span><br><span class="line">		没有public关键字</span><br><span class="line">		总的来说分成三大类</span><br><span class="line">            (1) 处处可以访问public </span><br><span class="line">            (2) 子类和伴生对象能访问protected </span><br><span class="line">            (3) 本类和伴生对象访问 private</span><br><span class="line">	Java中如果想要导入包中所有的类，可以通过通配符*，</span><br><span class="line">	Scala中采用通配符 _</span><br><span class="line">		引入部分类 采用选取器(大括号)</span><br><span class="line">			    import scala.collection.mutable.&#123;HashMap, HashSet&#125;</span><br><span class="line">	</span><br><span class="line">	如果引入的多个包中含有相同的类，进行重命名进行区分</span><br><span class="line">		import java.util.&#123; HashMap=&gt;JavaHashMap, List&#125;</span><br><span class="line">		import scala.collection.mutable._</span><br><span class="line">	如果某个冲突的类根本就不会用到，那么这个类可以直接隐藏掉。</span><br><span class="line">		import java.util.&#123; HashMap=&gt;_, _&#125; </span><br><span class="line">		var map = new HashMap()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">面向对象编程三大特征</span><br><span class="line">	封装、继承和多态。</span><br><span class="line">	</span><br><span class="line">	封装：</span><br><span class="line">		把属性以及方法封装在一起。数据被保护，对数据的操作是经过授权的操作。</span><br><span class="line">		优点:</span><br><span class="line">			隐藏实现细节</span><br><span class="line">			可以对数据进行验证，保证安全合理</span><br><span class="line">		</span><br><span class="line">		Scala中为了简化代码的开发，</span><br><span class="line">		当声明属性时，本身就自动提供了对应setter/getter方法,访问权限与属性一致。</span><br><span class="line">		private=&gt;private method,  省略=》public method</span><br><span class="line">	</span><br><span class="line">	继承：</span><br><span class="line">		解决代码复用。当多个类存在相同的属性(变量)和方法时,</span><br><span class="line">		子类不需要重新定义这些属性和方法。Scala只支持类的单继承</span><br><span class="line">		优点：</span><br><span class="line">			代码的复用性提高了</span><br><span class="line">			代码的扩展性和维护性提高了</span><br><span class="line">		子类继承了所有的属性，只是私有的属性不能直接访问。</span><br><span class="line"></span><br><span class="line">		类型检查和转换  **</span><br><span class="line">			isInstanceOf() 测试某个对象是否属于某个给定的类</span><br><span class="line">			asInstanceOf() 将引用转换为子类的引用  ***</span><br><span class="line">		</span><br><span class="line">		scala中只有主构造器可以调用父类的构造器。</span><br><span class="line">		</span><br><span class="line">		抽象类</span><br><span class="line">			抽象方法和抽象属性不能使用private、final 来修饰。</span><br><span class="line">			抽象类不能被实例化。</span><br><span class="line">		</span><br><span class="line">	多态：</span><br><span class="line">		多态的前提条件是继承。</span><br><span class="line">		主要表现：1.方法的重写 </span><br><span class="line">				2.父类引用指向子类对象（面向接口编程，低耦合）</span><br><span class="line">					A a = New B();</span><br><span class="line">					A的对象可访问B从A中继承来的</span><br><span class="line">					和B复写A的方法，</span><br><span class="line">					其它的方法都不能访问，包括A中的私有成员方法。</span><br><span class="line">		</span><br><span class="line">		多态成员的访问特点:</span><br><span class="line">			访问成员变量: 编译看左边,运行看左边</span><br><span class="line">			非静态成员方法: 编译看左边,运行看右边</span><br><span class="line">			静态成员方法:  编译看左边,运行看左边</span><br><span class="line">		即只有非静态成员方法才会编译看左边,运行看右边,其他的都是编译看左边,运行看左边		</span><br><span class="line">        优点：</span><br><span class="line">        	使用父类类型作为方法的参数,可以接收该类所有的子类对象</span><br><span class="line">		缺点：</span><br><span class="line">			不能使用子类特有的属性和行为.</span><br></pre></td></tr></table></figure>
+<p>##6.面向对象高级</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">静态属性和静态方法</span><br><span class="line">	Java中静态方法并不是通过对象调用的，而是通过类对象调用的，</span><br><span class="line">	所以静态操作并不是面向对象的。</span><br><span class="line">	</span><br><span class="line">	Scala中静态的概念----伴生对象. 没有static关键字</span><br><span class="line">		为了能够和Java语言交互.</span><br><span class="line">		这个类的所有静态内容都可以放置在它的伴生对象中声明和调用</span><br><span class="line">	概念：伴生类（class）、伴生对象（object关键字声明）</span><br><span class="line">	伴生对象的名称应该和伴生类名一致。</span><br><span class="line">	</span><br><span class="line">	伴生对象的声明应该和伴生类的声明在同一个源码文件中.  ****</span><br><span class="line">	</span><br><span class="line">	伴生对象-apply方法</span><br><span class="line">		在伴生对象中定义apply方法,</span><br><span class="line">		可以实现： 类名(参数) 方式 来创建对象实例. </span><br><span class="line"></span><br><span class="line">单例模式</span><br><span class="line">	保证在整个的软件系统中，某个类只能存在一个对象实例。</span><br><span class="line">	Scala中没有静态的概念，采用类对象(即伴生对象)方式构建单例对象</span><br><span class="line">	采用伴生对象懒汉式或者饿汉式实现。</span><br><span class="line"></span><br><span class="line">接口</span><br><span class="line">	采用trait（特质，特征）来代替接口的概念。</span><br><span class="line">		trait 特质名 &#123;</span><br><span class="line">			trait体</span><br><span class="line">		&#125;</span><br><span class="line">	extends 实现trait  单继承多实现</span><br><span class="line">		如果有多个特质或存在父类，那么需要采用with关键字连接</span><br><span class="line">	</span><br><span class="line">	常用的常见对象的方法：</span><br><span class="line">		new 对象</span><br><span class="line">		applay 方法，创建对象</span><br><span class="line">		反射</span><br><span class="line">		反序列化</span><br></pre></td></tr></table></figure>
+<h2 id="7-隐式转换"><a href="#7-隐式转换" class="headerlink" title="7.隐式转换"></a>7.隐式转换</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">隐式转换函数</span><br><span class="line">	以implicit关键字声明的带有单个参数的函数。</span><br><span class="line">	实例： 输入double,返回intssss</span><br><span class="line">		implicit def f1(d: Double): Int = &#123;</span><br><span class="line">            d.toInt</span><br><span class="line">          &#125;</span><br><span class="line">          val num: Int = 3.5</span><br><span class="line">     	  println(num)</span><br><span class="line">	</span><br><span class="line">	细节：</span><br><span class="line">		1. 隐式转换与函数名称无关，只与函数签名有关</span><br><span class="line">		2. 隐式函数可以有多个(即：隐式函数列表)，</span><br><span class="line">		但是需要保证在当前环境下，只有一个隐式函数能被识别</span><br></pre></td></tr></table></figure>
+<p>##8.集合</p>
+<p>数组、列表、</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line">Scala同时支持不可变集合和可变集合 ,默认采用不可变集合</span><br><span class="line">	不可变集合：scala.collection.immutable</span><br><span class="line">	可变集合：  scala.collection.mutable</span><br><span class="line">	这里的可变与不可变可理解为定长与变长</span><br><span class="line">	集合元素采用小括号访问</span><br><span class="line"></span><br><span class="line">集合有三大类：序列Seq、集Set、映射Map. 所有的集合都扩展自Iterable特质</span><br><span class="line"></span><br><span class="line">元组：可以理解为一个容器，可以存放各种相同或不同类型的数据。</span><br><span class="line">注意：元组中最大只能有22个元素</span><br><span class="line"></span><br><span class="line">数组 Array, ArrayBuffer(类似java的ArrayList)</span><br><span class="line">	多维数组：Array.ofDim[Int](3, 4)   3行4列</span><br><span class="line">	</span><br><span class="line">	Scala数组转Java的List </span><br><span class="line">	val arr = ArrayBuffer(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;)</span><br><span class="line">	import scala.collection.JavaConversions.bufferAsJavaList</span><br><span class="line">	val javaArr = new ProcessBuilder(arr)</span><br><span class="line">	val arrList = javaArr.command()</span><br><span class="line"></span><br><span class="line">	Java的List转Scala数组</span><br><span class="line">	import scala.collection.JavaConversions.asScalaBuffer</span><br><span class="line">	import scala.collection.mutable</span><br><span class="line">	val scalaArr: mutable.Buffer[String] = arrList</span><br><span class="line"></span><br><span class="line">列表 Scala的List可以直接存放数据，就是一个object</span><br><span class="line">		默认情况下Scala的List是不可变的，List属于序列Seq。	</span><br><span class="line">	Java中List是一个接口，真正存放数据是ArrayList</span><br><span class="line">		</span><br><span class="line">	List小结：</span><br><span class="line">		List 在 scala包对象声明的,因此不需要引入其它包也可以使用</span><br><span class="line">		val List = scala.collection.immutable.List</span><br><span class="line">		List 中可以放任何数据类型</span><br><span class="line">		如果希望得到一个空列表，可以使用Nil对象</span><br><span class="line">	</span><br><span class="line">	列表 List-元素的追加  尾加:+ 或  +：头插</span><br><span class="line">		向列表中增加元素, 会返回新的列表/集合对象。</span><br><span class="line">		列表增加数据</span><br><span class="line">            var list1 = List(1, 2, 3, &quot;abc&quot;)</span><br><span class="line">            // :+运算符表示在列表的最后增加数据</span><br><span class="line">            val list2 = list1 :+ 4</span><br><span class="line">            // :+运算符表示在列表的最后增加数据</span><br><span class="line">            val list3 = 4 +: list1</span><br><span class="line">		   最后增加数据也可以采用</span><br><span class="line">		</span><br><span class="line">		符号::   向集合中  新建集合添加元素。</span><br><span class="line">		::: 运算符  将集合中的每一个元素加入到空集合中去</span><br><span class="line">		运算规则，从右向左。</span><br><span class="line"></span><br><span class="line">		ListBuffer</span><br><span class="line">		可变的list集合，可以添加，删除元素,ListBuffer属于序列</span><br><span class="line"></span><br><span class="line">队列 Queue  new mutable.Queue[Int] </span><br><span class="line">    += 追加单个元素和 ++= 追加List</span><br><span class="line">    q1.dequeue() </span><br><span class="line">    q1.enqueue(20,60) </span><br><span class="line"></span><br><span class="line">映射 Map</span><br><span class="line">	Scala中不可变的Map是有序的，可变的Map是无序的。</span><br><span class="line">	可变Map (scala.collection.mutable.Map) </span><br><span class="line">	不可变Map(scala.collection.immutable.Map) </span><br><span class="line">	</span><br><span class="line">	new scala.collection.mutable.HashMap[String, Int]</span><br><span class="line">	</span><br><span class="line">	Map-取值</span><br><span class="line">        1.map.get(键) 这样的调用返回一个Option对象，要么是Some，要么是None</span><br><span class="line">        得到Some再取出， map.get(键).get</span><br><span class="line">		2.getOrElse（key,default） 方法 </span><br><span class="line">	如何选择取值方式建议</span><br><span class="line">	    如果我们确定key是存在的，应该使用map(&quot;key&quot;) ,速度快.</span><br><span class="line">        如果我们不确定key是否存在， </span><br><span class="line">        	而且在不存在时，有业务逻辑处理就是用map.contains(),配合 map(&quot;key&quot;)</span><br><span class="line">        如果只是简单的希望返回一个值，就使用getOrElse() </span><br><span class="line"></span><br><span class="line">	对map遍历</span><br><span class="line">		for ((k, v) &lt;- map) </span><br><span class="line">		for (v &lt;- map.keys) </span><br><span class="line">		for (v &lt;- map.keys) </span><br><span class="line">		for(v &lt;- map) </span><br><span class="line"></span><br><span class="line">集 Set</span><br><span class="line">	集是不重复元素的结合。默认是以哈希集实现</span><br></pre></td></tr></table></figure>
+<h2 id="9-集合操作"><a href="#9-集合操作" class="headerlink" title="9.集合操作"></a>9.集合操作</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">max,min,sum,product(乘积),reverse(反转)</span><br><span class="line">map操作</span><br><span class="line">	map 是一个高阶函数，可以接受一个函数的函数</span><br><span class="line">	将集合中的每一个元素通过指定功能（函数）映射（转换）成新的结果集合</span><br><span class="line"></span><br><span class="line">flatmap</span><br><span class="line">	将集合中的每个元素的子元素映射到某个函数并返回新的集合。</span><br><span class="line">	就是经过map函数之后多了一个扁平化的过程。</span><br><span class="line">	特别适用于嵌套的集合。</span><br><span class="line"></span><br><span class="line">过滤-filter</span><br><span class="line">	col.filter(_.startsWith(&quot;A&quot;)</span><br><span class="line"></span><br><span class="line">归约</span><br><span class="line">	list.reduceLeft(_+_)</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : fenghuayangyi <br>
+        
+        原文链接 : <a href>https://github.com/fenghuayangyi/2019/05/19/scala/scala编程/</a><br>
+        版权声明 : 本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/Scala/">
+              #Scala
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2019/04/22/大数据/Hive/" target="_self">Hive入门</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2019/05/19/计算机基础知识点/" target="_self">计算机组成原理知识点</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+   
+
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2018, 11, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  
+  
+  <title>HBase笔记 | shaohua&#39;s blog</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,HBase,">
+  
+
+  <script type="text/javascript">
+	$(document).ready(function() {
+	    //为超链接加上target='_blank'属性
+		$('a[href^="http"]').each(function() {
+			$(this).attr('target', '_blank');
+		});
+	});
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">Fenghuayangyi</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path>
+          
+            <a href="javascript:void(0);" v-else>抓到我</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://github.com/fenghuayangyi" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://blog.csdn.net/u011295626" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>HBase笔记</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-12-18
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h1 id="HBase"><a href="#HBase" class="headerlink" title="HBase"></a>HBase</h1><p>HBase是在Hadoop和ZooKeeper之上构建<strong>非关系型</strong>，<strong>面向列存储</strong>的开源分布式结构化数据存储系统。</p>
+<p>HBase的<strong>部署前提</strong>：<strong>Zookeeper</strong> + <strong>Hadoop</strong></p>
+<h2 id="0-快速回顾HBase"><a href="#0-快速回顾HBase" class="headerlink" title="0. 快速回顾HBase"></a>0. 快速回顾HBase</h2><p>HBase采用的是Key/Value的存储方式，这意味着，即使随着数据量增大，也几乎不会导致查询的性能下降。</p>
+<p>HBase并不快，只是当数据量很大的时候他慢的不明显。</p>
+<p>NoSQL生态圈的通病：不支持表关联。因此不要盲目使用group by 和 order by。</p>
+<p>最好不要使用hbase的情况：<br>    1.主要需求是数据分析，比如做报表。<br>    2.单表数据量不超过千万。<br>这些情况可以使用MySQL或者Oracle之类的产品。</p>
+<p>关于HBase架构：</p>
+<p>​    两种服务器：Master服务器和RegionServer服务器<br>    一般一个HBase集群有一个Master服务器和几个RegionServer服务器。<br>    Master服务器负责维护表结构信息，实际的数据都存储在RegionServer服务器上。</p>
+<p>特殊：客户端获取数据由客户端直连RegionServer的，<br>所以你会发现Master挂掉之后你依然可以查询数据，但就是不能新建表了。</p>
+<p>RegionServer是直接负责存储数据的服务器。RegionServer保存的表数据直接存储在Hadoop的HDFS上。<br>并且<strong>RegionServer非常依赖ZooKeeper服务，可以说没有ZooKeeper就没有HBase</strong>。</p>
+<p><strong>ZooKeeper</strong>管理了HBase所有RegionServer的信息，包括具体的数据段存放在哪个RegionServer上。<br>客户端每次与HBase连接，其实都是先与ZooKeeper通信，查询出哪个RegionServer需要连接，然后再连接RegionServer。</p>
+<h3 id="0-1-HBase基本概念回顾"><a href="#0-1-HBase基本概念回顾" class="headerlink" title="0.1 HBase基本概念回顾"></a>0.1 HBase基本概念回顾</h3><p>1.Region是什么</p>
+<ul>
+<li>Region就是一段（很多行）数据的集合。HBase中的表一般拥有一个到多个Region。</li>
+<li>Region有以下特性：<ul>
+<li>Region不能跨服务器，一个RegionServer上有一个或者多个Region。</li>
+<li>数据量小的时候，一个Region足以存储所有数据；但是，当数据量大的时候，HBase会拆分Region。</li>
+<li>当HBase在进行负载均衡的时候，也有可能会从一台RegionServer上把Region移动到另一台RegionServer上。</li>
+<li><strong>Region是基于HDFS</strong>的，它的所有数据存取操作都是调用了HDFS的客户端接口来实现的。</li>
+</ul>
+</li>
+</ul>
+<p>2.RegionServer是什么</p>
+<ul>
+<li>RegionServer就是存放Region的容器，直观上说就是服务器上的一个服务。</li>
+<li>一般来说，一个服务器只会安装一个RegionServer服务。</li>
+<li>当客户端从ZooKeeper获取RegionServer的地址后，它会直接从RegionServer获取数据。</li>
+</ul>
+<p>3.Master是什么</p>
+<ul>
+<li><p>Master在HBase中Master的角色不像领导，更像是打杂的。</p>
+</li>
+<li><p>客户端从 ZooKeeper获取了RegionServer的地址后，会直接从RegionServer获取数据。插入删除等也一样。</p>
+</li>
+<li><p>Master只负责各种协调工作（其实就是打杂），比如建表、删表、移动Region、合并等操作。</p>
+<p>共性就是需要跨RegionServer，这些操作由哪个RegionServer来执行都不合适，所以HBase就交给Master了。</p>
+</li>
+<li><p>好处是大大降低了集群对Master的依赖。而Master节点一般只有一个到两个，防止单点故障。</p>
+</li>
+</ul>
+<p>4.关于rowkey</p>
+<ul>
+<li><p>完全是由用户指定的一串不重复的字符串。</p>
+</li>
+<li><p>HBase中无法根据某个column来排序，系统永远是根据rowkey按照字典序来排序的。</p>
+</li>
+<li><p>如果你插入HBase的时候，不小心用了之前已经存在的rowkey，就进行更新操作。</p>
+<p>之前的值会放在这个单元格的历史记录里面，只要带上版本参数就可以得到这个值。</p>
+</li>
+</ul>
+<p>5.什么是单元格</p>
+<ul>
+<li>一个列上可以存储多个版本的单元格。</li>
+<li>单元格是数据存储的最小单元。</li>
+</ul>
+<p>6.列族</p>
+<ul>
+<li><p>HBase中，<strong>若干列可以组成列族</strong>（column family）。</p>
+</li>
+<li><p><strong>建表</strong>的时候是<strong>不需要指定列的</strong>，因为列是可变的，它非常灵活，<strong>唯一需要确定的就是列族</strong>。</p>
+</li>
+<li><p>一个表有几个列族是一开始就定好的。</p>
+</li>
+<li><p>此外，表的很多属性，比如过期时间、数据块缓存以及是否压缩等都是定义在列族上的。同一个表里的不同列族可以有完全不同的属性配置，但是同一个列族内的所有列都会有相同的属性。</p>
+</li>
+<li><p>在HBase中一个列的名称前面总是带着它所属的列族。<strong>列名称的规范是列族:列名</strong>。</p>
+</li>
+<li><p>列族存在的意义是：HBase会把相同列族的列尽量放在同一台机器上，所以说，如果想让某几个列被放到一起，你就给他们定义相同的列族。</p>
+</li>
+<li><p>一个表要设置多少个列族比较合适？官方的建议是：越少越好，因为HBase并不希望大家指定太多的列族。</p>
+<p>因为没有必要，虽然HBase是分布式数据库，但是数据在同一台物理机上依然会加速数据的查询过程。</p>
+</li>
+</ul>
+<p>7.单元格</p>
+<ul>
+<li><p>一个列上可以存储多个版本的值在多个单元格里面，用版本号（Version）来区分。</p>
+<p>唯一确定一条结果的表达式应该是行键:列族:列:版本号（rowkey:column family:column:version）</p>
+<p>版本号是可以省略的。如果你不写版本号，HBase默认获取最后一个版本的数据返回。</p>
+<p>每个列或者单元格的值都被赋予一个时间戳。默认是由系统制定的，也可以由用户显示指定。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(rowKey, family, qualifier, ts, value)</span><br></pre></td></tr></table></figure>
+<p>Table可以直接理解为表，rowKey为主键，而Family和Qualifier其实都可以理解为列，一个Family下面可以有多个Qualifier，所以可以简单的理解为，HBase中的列是二级列，也就是说Family是第一级列，Qualifier是第二级列。两个是父子关系。</p>
+<p>8.region和行</p>
+<ul>
+<li>一个Region就是多个行的集合。</li>
+<li>在Region中行的排序按照行键（rowkey）字典排序。</li>
+</ul>
+<p>9.过滤器</p>
+<ul>
+<li>相当于where语句，进行过滤</li>
+<li>过滤器被用户创建出来后会被序列化为可以网络传输的格式，然后被分发到各个RegionServer。<br>不满足过滤器条件的结果就不会被返回客户端。</li>
+</ul>
+<p>10.协处理器 observer 和 endpoint</p>
+<ul>
+<li>observer 协处理器相当于 触发器。</li>
+<li>endpoint 协处理器相当于 存储过程。</li>
+</ul>
+<h2 id="1-HBase-介绍"><a href="#1-HBase-介绍" class="headerlink" title="1. HBase 介绍"></a>1. HBase 介绍</h2><ul>
+<li><p>HBase和Hive</p>
+<ol>
+<li><p>应用场景</p>
+<p>Hive适合用于对一段时间内的数据进行分析查询。如 计算趋势金和网站的日志。Hive需要很长的时间才可以返回结果，因此不适合进行实时查询。</p>
+<p>HBase 非常适合大数据的实时查询。Facebook使用HBase进行消息的实时分析，统计Facebook的连接数</p>
+</li>
+<li><p>总结</p>
+<p><strong>Hive</strong> 是一种类SQL的引擎，运行MR任务。<strong>用来离线统计查询</strong>。</p>
+<p><strong>HBase</strong>是一种在Hadoop之上的<strong>NoSQL的key/value 数据库</strong>。<strong>进行实时查询</strong>。</p>
+</li>
+</ol>
+</li>
+<li><p>HBase角色</p>
+<p>HMaster 和 RegionServer</p>
+<ol>
+<li><p>HMaster</p>
+<p>1) 监控RegionServer</p>
+<p>2) 处理RegionServer故障转移</p>
+<p>3) 处理元数据的变更</p>
+<p>4) 处理region的分配或移除</p>
+<p>5) 在空闲时间进行数据的负载均衡</p>
+<p>6) 通过Zookeeper发布自己的位置给客户端</p>
+</li>
+<li><p>RegionServer</p>
+<p>1) 负责存储HBase的实际数据</p>
+<p>2) 处理分配给它的Region</p>
+<p>3) 刷新缓存到HDFS   </p>
+<p>4) 维护HLog</p>
+<p>5) 执行压缩</p>
+<p>6) 负责处理Region分片</p>
+</li>
+<li><p>组件</p>
+<ul>
+<li><p>Write-Ahead logs</p>
+<p>HBase读写数据的时候，数据会先写在一个叫做Write-Ahead logfile的文件中，然后再写入内存中。所以在系统出现故障的时候，数据可以通过这个日志文件重建。</p>
+</li>
+<li><p>HFile</p>
+<p>原始数据的实际存储文件。</p>
+</li>
+<li><p>Store</p>
+<p>HFile存储在Store中，一个Store对应HBase表中的一个列族。</p>
+</li>
+<li><p>MemStore</p>
+<p>内存存储，位于内存中，用来保存当前的数据操作。</p>
+<p>当数据保存在WAL中之后，RegsionServer会在内存中存储键值对。</p>
+</li>
+<li><p>Region</p>
+<p>Hbase表的分片，HBase表会根据RowKey值被切分成不同的region存储在RegionServer中，在一个RegionServer中可以有多个不同的region。（我的理解类似于分区）</p>
+</li>
+</ul>
+</li>
+<li><p>HBase的启动</p>
+<ul>
+<li>bin/start-hbase.sh</li>
+<li>bin/stop-hbase.sh</li>
+</ul>
+<p>如果使用的是JDK8以上版本，则应在hbase-evn.sh中</p>
+<p>移除“HBASE_MASTER_OPTS”和“HBASE_REGIONSERVER_OPTS”配置。</p>
+<ul>
+<li><p>查看Hbase页面</p>
+<p><a href="http://masterhost:16010" target="_blank" rel="noopener">http://masterhost:16010</a></p>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>简单说下HBase的表分区和索引管理</strong></p>
+<ul>
+<li>将Table 中的数据根据rowKey 字段划分为多个HRegion</li>
+<li>HRegion分配给RegionServer管理</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-HBase的使用"><a href="#2-HBase的使用" class="headerlink" title="2. HBase的使用"></a>2. HBase的使用</h2><h3 id="2-1-简单实用"><a href="#2-1-简单实用" class="headerlink" title="2.1 简单实用"></a>2.1 简单实用</h3><h4 id="2-1-1-基本操作"><a href="#2-1-1-基本操作" class="headerlink" title="2.1.1 基本操作"></a>2.1.1 基本操作</h4><ul>
+<li><p>进入客户端</p>
+<p>bin/hbase shell</p>
+</li>
+<li><p>帮助命令：help</p>
+</li>
+<li><p>查看当前数据库的表：list</p>
+</li>
+</ul>
+<h4 id="2-2-2-表的操作"><a href="#2-2-2-表的操作" class="headerlink" title="2.2.2 表的操作"></a>2.2.2 表的操作</h4><p>涉及的名称：表名，列族，rowkey，列名，值</p>
+<p>ps：由于是key value结构的数据，可以<strong>把列族理解为一个对象</strong>，<strong>列理解为对象的一个属性</strong></p>
+<ul>
+<li><p>创建表 student    – <strong>student 表名，info 列族</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create &apos;student&apos;,&apos;info&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>插入数据列表  – <strong>name,sex,age 列名， </strong>  <strong>1001/1002 rowkey</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">put &apos;student&apos;,&apos;1001&apos;,&apos;info:name&apos;,&apos;Thomas&apos;</span><br><span class="line">put &apos;student&apos;,&apos;1001&apos;,&apos;info:sex&apos;,&apos;male&apos;</span><br><span class="line">put &apos;student&apos;,&apos;1001&apos;,&apos;info:age&apos;,&apos;18&apos;</span><br><span class="line">put &apos;student&apos;,&apos;1002&apos;,&apos;info:name&apos;,&apos;Janna&apos;</span><br><span class="line">put &apos;student&apos;,&apos;1002&apos;,&apos;info:sex&apos;,&apos;female&apos;</span><br><span class="line">put &apos;student&apos;,&apos;1002&apos;,&apos;info:age&apos;,&apos;20&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>扫描查看表数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">scan &apos;student&apos;</span><br><span class="line">scan &apos;student&apos;,&#123;STARTROW =&gt; &apos;1001&apos;, STOPROW  =&gt; &apos;1001&apos;&#125;</span><br><span class="line">scan &apos;student&apos;,&#123;STARTROW =&gt; &apos;1001&apos;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看表结构</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">describe ‘student’</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>更新指定字段的数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">put &apos;student&apos;,&apos;1001&apos;,&apos;info:name&apos;,&apos;Nick&apos;</span><br><span class="line">put &apos;student&apos;,&apos;1001&apos;,&apos;info:age&apos;,&apos;100&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看“指定行”或“指定列族:列”的数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">get &apos;student&apos;,&apos;1001&apos; //查看指定行</span><br><span class="line">get &apos;student&apos;,&apos;1001&apos;,&apos;info:name&apos; //指定列族info 指定列name</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除数据</p>
+<p>删除某 rowkey 的全部数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">deleteall &apos;student&apos;,&apos;1001&apos;</span><br></pre></td></tr></table></figure>
+<p>删除某 rowkey 的某一列数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">delete &apos;student&apos;,&apos;1002&apos;,&apos;info:sex&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>清空表数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">disable &apos;student&apos;</span><br><span class="line">truncate &apos;student&apos;</span><br></pre></td></tr></table></figure>
+<p>PS: 清空表的操作顺序为先disable，然后再truncating。</p>
+</li>
+<li><p>删除表</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">disable &apos;student&apos;</span><br><span class="line">drop &apos;student&apos;</span><br></pre></td></tr></table></figure>
+<p>PS: 删除表的操作顺序为先disable，然后再drop。</p>
+</li>
+<li><p>统计表数据的行数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">count &apos;student&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>变更表信息</p>
+<p>将列族中的数据存放3个版本：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter &apos;student&apos;,&#123;NAME=&gt;&apos;info&apos;,VERSIONS=&gt;3&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="2-2-读写流程"><a href="#2-2-读写流程" class="headerlink" title="2.2 读写流程"></a>2.2 读写流程</h3><h4 id="2-2-1-Hbase读流程"><a href="#2-2-1-Hbase读流程" class="headerlink" title="2.2.1 Hbase读流程"></a>2.2.1 Hbase读流程</h4><ol>
+<li><p><strong>确定meta表所在的HRegionServer</strong>。</p>
+<p>HRegionServer保存着meta表以及表数据。因此要访问表数据，首先Client先去访问zookeeper，从zookeeper里面获取meta表所在的位置信息，即找到这个meta表在哪个HRegionServer上保存着。</p>
+</li>
+<li><p><strong>访问meta表所在的HRegionServer,读取meta表中存放的元数据</strong>。</p>
+<p>Client通过刚才获取到的HRegionServer的IP来访问Meta表所在的HRegionServer，从而读取到Meta，进而获取到Meta表中存放的元数据。</p>
+</li>
+<li><p><strong>根据元数据扫描Memstore和Storefile 查询数据</strong>。</p>
+<p>Client通过元数据中存储的信息，访问对应的HRegionServer，然后扫描所在HRegionServer的Memstore和Storefile来查询数据。</p>
+</li>
+<li><p>HRegionServer把查询到的数据响应给Client。</p>
+</li>
+</ol>
+<h4 id="2-2-2-HBase写数据流程"><a href="#2-2-2-HBase写数据流程" class="headerlink" title="2.2.2 HBase写数据流程"></a>2.2.2 HBase写数据流程</h4><ol>
+<li><p><strong>获取Meta表信息</strong></p>
+<p>Client也是先访问zookeeper，找到Meta表，并获取Meta表信息。</p>
+</li>
+<li><p><strong>确定RegionServer服务器和Region。</strong></p>
+<p>确定当前将要写入的数据所对应的RegionServer服务器和Region。</p>
+</li>
+<li><p><strong>发起写入数据请求</strong></p>
+<p>Client向该RegionServer服务器发起写入数据请求，然后RegionServer收到请求并响应。</p>
+</li>
+<li><p><strong>先写HLog</strong></p>
+<p>Client先把数据写入到HLog，以防止数据丢失。</p>
+</li>
+<li><p><strong>再写Memstore</strong></p>
+</li>
+<li><p>如果<strong>Hlog</strong>和<strong>Memstore均写入成功</strong>，则这条数据<strong>写入成功</strong>。</p>
+<p>在此过程中，如果Memstore达到阈值，会把Memstore中的数据flush到StoreFile中。</p>
+</li>
+<li><p><strong>Compact合并操作 和 Split操作</strong></p>
+<p>当<strong>Storefile越来越多</strong>，会触发Compact<strong>合并操作</strong>，把过多的Storefile合并成一个大的Storefile。当<strong>Storefile越来越大</strong>，Region也会越来越大，<strong>达到阈值后</strong>，会触发<strong>Split操作</strong>，<strong>将Region一分为二</strong>。</p>
+<p>总结：所以<strong>从大到小  region,Storefile, Memstore</strong></p>
+<p>当Memstore达到阈值，数据flush到StoreFile。当StoreFile文件数过多，Compact成大的Storefile。</p>
+<p>当Storefile越来越大，Region也会越来越大。当Region达到阈值，触发Split操作，将Region一分为二。</p>
+</li>
+</ol>
+<p><strong>PS: 因为内存空间的限制，溢写文件必定伴随着大量小文件的产生。</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">总结：写入的时候 Hlog 和 Memstore均写入。</span><br><span class="line"></span><br><span class="line">1. Memstore 达到阈值，flush 到 Storefile 中。</span><br><span class="line">2. Storefile太多，Compact合并操作，合成大的Storefile。</span><br><span class="line">3. Storefile太大，Region达到阈值后触发Split操作，将Region一分为二。</span><br></pre></td></tr></table></figure>
+<h2 id="3-HBase-MapReduce。。"><a href="#3-HBase-MapReduce。。" class="headerlink" title="3. HBase - MapReduce。。"></a>3. HBase - MapReduce。。</h2><ol>
+<li>使用MapReduce将数据从本地文件系统导入到HBase的表。</li>
+<li>从HBase中读取一些原始数据后使用MapReduce做数据分析</li>
+</ol>
+<h3 id="3-1-使用官方的-MR"><a href="#3-1-使用官方的-MR" class="headerlink" title="3.1 使用官方的 MR"></a>3.1 使用官方的 MR</h3><h2 id="4-HBase-Hive。。"><a href="#4-HBase-Hive。。" class="headerlink" title="4. HBase - Hive。。"></a>4. HBase - Hive。。</h2><h2 id="5-常用-Shell-操作"><a href="#5-常用-Shell-操作" class="headerlink" title="5. 常用 Shell 操作"></a>5. 常用 Shell 操作</h2><ol>
+<li><p><strong>status</strong></p>
+<p>例如显示服务器状态：status ‘linux01’</p>
+</li>
+<li><p><strong>whoami</strong></p>
+<p>显示HBase 当前用户：hbase&gt; whoami</p>
+</li>
+<li><p><strong>list</strong></p>
+<p>显示当前所有的表：hbase&gt; list</p>
+</li>
+<li><p><strong>count</strong></p>
+<p>统计指定表的记录数：count ‘hbase_student’</p>
+</li>
+<li><p><strong>describe</strong></p>
+<p>展示表结构：describe ‘hbase_student’</p>
+</li>
+<li><p><strong>exist</strong></p>
+<p>检查表是否存在：exist ‘hbase_student’</p>
+</li>
+<li><p><strong>is_enabled / is_disabled</strong></p>
+<p>检查表是否启用或禁用: </p>
+<p>is_enabled ‘hbase_student’</p>
+<p>is_disabled ‘hbase_student’</p>
+</li>
+<li><p><strong>alter</strong></p>
+<p><strong>改变表和列族的模式</strong>：</p>
+<p>为当前表增加列族：alter ‘hbase_student’, NAME =&gt; ‘info2’, VERSIONS =&gt; 2</p>
+<p>为当前表删除列族：alter ‘hbase_student’, ‘delete’ =&gt; ‘info2’</p>
+</li>
+<li><p><strong>disabled</strong></p>
+<p>禁用一张表：disable ‘hbase_student’</p>
+</li>
+<li><p><strong>drop</strong></p>
+<p>删除一张表：disable ‘hbase_student’；drop ‘hbase_student’；</p>
+</li>
+<li><p><strong>delete</strong></p>
+<p>删除一行中一个单元格的值：delete ‘hbase_student’, ‘1001’, ‘info:name’</p>
+<p>​                                    表名 rowkey 列族:列名</p>
+</li>
+<li><p><strong>truncate</strong></p>
+<p>清空表数据：disable ‘hbase_student’；truncate ‘hbase_student’；</p>
+</li>
+<li><p><strong>create</strong></p>
+<p>创建表： create ‘table’,‘info’</p>
+<p>​            表名，列族名</p>
+<p><strong>创建多个族</strong>： </p>
+<p>create ‘table’,{NAME =&gt; ‘info1’}, {NAME =&gt; ‘info2’}, {NAME =&gt; ‘info3’}</p>
+</li>
+</ol>
+<h2 id="6-数据的备份与恢复"><a href="#6-数据的备份与恢复" class="headerlink" title="6. 数据的备份与恢复"></a>6. 数据的备份与恢复</h2><h3 id="6-1-备份"><a href="#6-1-备份" class="headerlink" title="6.1 备份"></a>6.1 备份</h3><p>停止HBase服务后，使用distcp命令运行MapReduce任务进行备份，将数据备份到另一个地方，可以是同一个集群，也可以是专用的备份集群。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bin/hadoop distcp \</span><br><span class="line">hdfs://masterhost:8020/hbase \</span><br><span class="line">hdfs://masterhost:8020/HbaseBackup/backup20191016</span><br></pre></td></tr></table></figure>
+<p><strong>PS: 执行该操作，一定要开启Yarn服务</strong></p>
+<h3 id="6-2-恢复"><a href="#6-2-恢复" class="headerlink" title="6.2 恢复"></a>6.2 恢复</h3><p>跟备份方法一样，将数据整个移动回来即可。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bin/hadoop distcp \</span><br><span class="line">hdfs://masterhost:8020/HbaseBackup/backup20171016 \</span><br><span class="line">hdfs://masterhost:8020/hbase</span><br></pre></td></tr></table></figure>
+<h2 id="7-总结"><a href="#7-总结" class="headerlink" title="7. 总结"></a>7. 总结</h2><p>不一定所有的企业都会使用HBase，大数据的框架可以是相互配合相互依赖的，同时，根据不同的业务，部分框架之间的使用也可以是相互独立的。</p>
+<p>例如有些企业在处理整个业务时，只是用HDFS+Spark部分的内容。</p>
+<p>一定要有宏观思维，了解其框架特性，不一定非要在所有的业务中使用所有的框架，要具体情况具体分析，酌情选择。</p>
+<h2 id="8-协处理器"><a href="#8-协处理器" class="headerlink" title="8. 协处理器"></a>8. 协处理器</h2><h3 id="8-1-简介"><a href="#8-1-简介" class="headerlink" title="8.1 简介"></a>8.1 简介</h3><h4 id="8-1-1-起源"><a href="#8-1-1-起源" class="headerlink" title="8.1.1 起源"></a>8.1.1 起源</h4><p>Hbase 作为列族数据库最经常被人诟病的特性包括：无法轻易建立“二级索引”，难以执 行求和、计数、排序等操作。</p>
+<p>比如，在旧版本的(&lt;0.92)Hbase 中，统计数据表的总行数，需 要使用 Counter 方法，执行一次 MapReduce Job 才能得到。</p>
+<p><strong>如果直接将计算过程放置在 server 端，能够减少通讯开销，从而获 得很好的性能提升。</strong></p>
+<p>于是，HBase 在 0.92 之后引入了协处理器(coprocessors)，能够轻易<strong>建立二次索引</strong>、<strong>复杂过滤器(谓词下推)以及访问控制</strong>等。</p>
+<h4 id="8-1-2-介绍"><a href="#8-1-2-介绍" class="headerlink" title="8.1.2 介绍"></a>8.1.2 介绍</h4><p>协处理器有两种：<strong><em>observer</em> 和 <em>endpoint</em></strong></p>
+<p>　　<strong>Observer</strong> <strong>类似于传统数据库中的触发器</strong>，当发生某些事件的时候这类协处理器会被 Server 端调用。<strong>Observer Coprocessor</strong> 就是一些散布在 HBase Server 端代码中的 hook 钩子， 在固定的事件发生时被调用。</p>
+<p>比如：put 操作之前有钩子函数 prePut，该函数在 put 操作执 行前会被 Region Server 调用；在 put 操作之后则有 postPut 钩子函数。</p>
+<p>以 HBase0.92 版本为例，它提供了三种观察者接口：</p>
+<p>​    <strong>RegionObserver</strong>：提供客户端的数据操纵事件钩子：<strong>Get</strong>、<strong>Put</strong>、<strong>Delete</strong>、<strong>Scan</strong> 等。</p>
+<p>​    <strong>WALObserver</strong>：提供 WAL 相关操作钩子。</p>
+<p>​    <strong>MasterObserver</strong>：提供 DDL-类型的操作钩子。如创建、删除、修改数据表等。</p>
+<p>​    到 0.96 版本又新增一个 <strong>RegionServerObserver</strong></p>
+<p><strong>补充：WAL的全称是 Write-Ahead Logging，它的关键点就是先写日志，再写磁盘。</strong></p>
+<p>​    <strong>Endpoint</strong> 协处理器类似传统数据库中的存储过程，客户端可以调用这些 Endpoint 协处 理器执行一段 Server 端代码，并将 Server 端代码的结果返回给客户端进一步处理，<strong>最常见 的用法就是进行聚集操作</strong>。</p>
+<p>​    如果没有协处理器，当用户需要找出一张表中的最大数据，即 max 聚合操作，就必须进行全表扫描，在客户端代码内遍历扫描结果，并执行求最大值的 操作。这样的方法无法利用底层集群的并发能力，而将所有计算都集中到 Client 端统一执行， 势必效率低下。</p>
+<p>​    利用 Coprocessor，用户可以将求最大值的代码部署到 HBase Server 端，HBase 将利用底层 cluster 的多个节点<strong>并发执行求最大值的操作</strong>。即在每个 Region 范围内执行求最大值的代码，将<strong>每个 Region 的最大值在 Region Server 端计算出</strong>，仅仅将该 max 值返回给客 户端。在<strong>客户端进一步将多个 Region 的最大值进一步处理而找到其中的最大值</strong>。</p>
+<h4 id="8-1-3-协处理器原理"><a href="#8-1-3-协处理器原理" class="headerlink" title="8.1.3 协处理器原理"></a>8.1.3 协处理器原理</h4><p>以<em>observer</em>  put请求为例：</p>
+<p>​    1、客户端发出 put 请求</p>
+<p>　　2、该请求被分派给合适的 RegionServer 和 region</p>
+<p>　　3、coprocessorHost 拦截该请求，然后在该表上登记的每个 RegionObserver 上调用 prePut()</p>
+<p>　　4、如果没有被 prePut()拦截，该请求继续送到 region，然后进行处理</p>
+<p>　　5、region 产生的结果再次被 CoprocessorHost 拦截，调用 postPut()</p>
+<p>　　6、假如没有 postPut()拦截该响应，最终结果被返回给客户端</p>
+<h4 id="8-1-4-总结"><a href="#8-1-4-总结" class="headerlink" title="8.1.4 总结"></a>8.1.4 总结</h4><p>​    <strong>Observer</strong> 允许集群在正常的客户端操作过程中可以有不同的行为表现</p>
+<p>　　<strong>Endpoint</strong> 允许<strong>扩展集群的能力</strong>，对客户端应用开放新的运算命令</p>
+<p>　　<strong>Observer</strong> 类似于 RDBMS 中的<strong>触发器</strong>，主要在服务端工作</p>
+<p>　　<strong>Endpoint</strong> 类似于 RDBMS 中的<strong>存储过程</strong>，主要在服务端工作</p>
+<p>　　</p>
+<p>​    Observer 可以实现权限管理、优先级设置、监控、ddl 控制、<strong>二级索引</strong>等功能</p>
+<p>　　Endpoint 可以实现 <strong>min、max、avg、sum、count、distinct、group by</strong> 等功能</p>
+<h4 id="8-1-5-WAL"><a href="#8-1-5-WAL" class="headerlink" title="8.1.5 WAL"></a>8.1.5 WAL</h4><p><strong>WAL(Write-Ahead-Log)</strong>预写日志是Hbase的RegionServer在处理数据插入和删除的过程中用来<strong>记录操作内容的一种日志</strong>。</p>
+<p>在每次Put、Delete等一条记录时，首先将其数据写入到RegionServer对应的HLog文件中去。</p>
+<p>客户端向RegionServer端提交数据的时候，会先写入WAL日志，只有当WAL日志写入成功的时候，客户端才会被告诉提交数据成功。<strong>如果写WAL失败会告知客户端提交失败，这其实就是数据落地的过程。</strong></p>
+<p>在一个RegionServer上的所有Region都共享一个HLog，一次数据的提交先写入WAL，写入成功后，再写入menstore之中。</p>
+<p>当menstore的值达到一定的时候，就会形成一个StoreFile。</p>
+<ul>
+<li><p>HBase容错处理</p>
+<p>WAL记载了每一个RegionServer对应的HLog。</p>
+<p>RegionServer1或者RegionServer1上某一个regiong挂掉了，都会迁移到其它的机器上处理，重新操作，进行恢复。</p>
+<p>当RegionServer意外终止的时候，Master会通过Zookeeper感知到，Master首先会处理遗留下来的HLog文件，将其中不同Region的Log数据进行拆分，分别放到相应的Region目录下，然后再将实效的Region重新分配，领取到这些Region的RegionMaster发现有历史的HLog需要处理，因此会Replay HLog的数据到Memstore之中，然后flush数据到StoreFiles，完成数据的恢复。</p>
+</li>
+<li><p>HBase和HDFS的关系</p>
+<p>相同点：</p>
+<ul>
+<li>二者都具有良好的容错性和扩展性，都可以扩展成百千上万个结点</li>
+</ul>
+<p>不同点：</p>
+<ul>
+<li>HDFS<strong>适合批处理场景</strong>。</li>
+<li>HDFS<strong>不支持数据的随机查找</strong>、<strong>不适合增量数据处理</strong>、<strong>不支持数据更新</strong>。</li>
+</ul>
+<p>关系：</p>
+<ul>
+<li>Hbase内存管理的所有文件都存储在HDFS之中。</li>
+</ul>
+</li>
+</ul>
+<h3 id="8-2-协处理器的加载方式"><a href="#8-2-协处理器的加载方式" class="headerlink" title="8.2 协处理器的加载方式"></a>8.2 协处理器的加载方式</h3><p>协处理器的加载方式有两种，我们称之为<strong>静态加载方式（Static Load）和动态加载方式 （Dynamic Load）</strong>。</p>
+<p>静态加载的协处理器称之为 <strong>System Coprocessor</strong>，动态加载的协处理器称 之为 <strong>Table Coprocessor</strong>。</p>
+<h4 id="8-2-1-静态加载"><a href="#8-2-1-静态加载" class="headerlink" title="8.2.1 静态加载"></a>8.2.1 静态加载</h4><p>通过修改hbase-site.xml 这个文件实现，启动全局的aggregation, 能够操作所有表上的数据。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">	&lt;name&gt;hbase.coprocessor.user.region.classes&lt;/name&gt;</span><br><span class="line">	&lt;value&gt;org.apache.hadoop.hbase.coprocessor.AggregateImplementation&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+<p>为所有 table 加载了一个 cp class，可以用”,”分割加载多个 class。</p>
+<h4 id="8-2-2-动态加载"><a href="#8-2-2-动态加载" class="headerlink" title="8.2.2 动态加载"></a>8.2.2 动态加载</h4><p>启用表 aggregation，只对特定的表生效。通过 HBase Shell 来实现。</p>
+<ol>
+<li><p>停用表　　disable ‘tablename’</p>
+</li>
+<li><p>添加协处理器　　</p>
+<p>alter ‘tablename’, METHOD =&gt; ‘table_att’, ‘coprocessor’ =&gt; ‘hdfs://myha01/hbase/guanzhu.jar|com.hypers.insight.HbaseCoprocessorTest|1001|’</p>
+</li>
+<li><p>启用表　　enable ‘tablename’</p>
+</li>
+</ol>
+<h4 id="8-2-3-协处理器卸载"><a href="#8-2-3-协处理器卸载" class="headerlink" title="8.2.3 协处理器卸载"></a>8.2.3 协处理器卸载</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">disable &apos;mytable&apos;</span><br><span class="line">alter &apos;mytable&apos;,METHOD=&gt;&apos;table_att_unset&apos;,NAME=&gt;&apos;coprocessor$1&apos;</span><br><span class="line">enable &apos;mytable&apos;</span><br></pre></td></tr></table></figure>
+<h3 id="8-3-Endpoint"><a href="#8-3-Endpoint" class="headerlink" title="8.3 Endpoint"></a>8.3 Endpoint</h3><ul>
+<li>与Observer类型不同的是，<strong>Endpoint协处理器需要与服务区直接通信</strong>，服务端是对于Protobuf Service的实现，所以两者直接会有一个基于protocl的RPC接口，客户端和服务端都需要进行基于接口的代码逻辑实现。</li>
+<li>不同于Observer协处理器，EndPoint由于需要同region进行rpc服务的通信，以及客户端出数据的归并，需要自行实现客户端代码。</li>
+<li>​</li>
+</ul>
+<h3 id="8-4-关于二级索引"><a href="#8-4-关于二级索引" class="headerlink" title="8.4 关于二级索引"></a>8.4 关于二级索引</h3><ul>
+<li><p>HBase的局限性</p>
+<p>HBase本身<strong>只提供基于行键和全表扫描的查询</strong>，而<strong>行键索引单一</strong>，对于多维度的查询困难。</p>
+</li>
+<li><p>常见的二级索引方案</p>
+<p>HBase的<strong>一级索引</strong>就是<strong>rowkey</strong>，我们只能通过rowkey进行检索。如果我们相对HBase里面列族的<strong>列列进行一些组合查询</strong>，就<strong>需要采用HBase的二级索引方案</strong>来进行多条件的查询。 </p>
+<ul>
+<li><p>MapReduce 方案</p>
+<p><a href="https://blog.csdn.net/wypersist/article/details/79830811" target="_blank" rel="noopener">https://blog.csdn.net/wypersist/article/details/79830811</a></p>
+</li>
+<li><p>ITHBASE（Indexed-Transanctional HBase）方案 </p>
+</li>
+<li><p>IHBASE（Index HBase）方案 </p>
+</li>
+<li><p>Hbase Coprocessor(协处理器)方案 </p>
+</li>
+<li><p>Solr+hbase方案</p>
+</li>
+<li><p>CCIndex（complementalclustering index）方案</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>这里主要学习Hbase Coprocessor(协处理器)方案 。</p>
+<p><strong>二级索引的本质就是建立各列值与行键之间的映射关系</strong></p>
+<p><img src="http://ww1.sinaimg.cn/large/a3a0cfd7gy1g81aa2i8e8j20hn0b7q3g.jpg" alt="undefined"></p>
+<p>如上图1，当要对F:C1这列建立索引时，只需要建立F:C1各列值到其对应行键的映射关系，如C11-&gt;RK1等（第二张表），这样就完成了对F:C1列值的二级索引的构建。</p>
+<p>当要查询符合F:C1=C11对应的F:C2的列值时（即根据C1=C11来查询C2的值,第三张表青色部分）</p>
+<p>其查询步骤如下：</p>
+<ul>
+<li>根据C1=C11到索引数据中查找其对应的RK，查询得到其对应的RK=RK1</li>
+<li>得到RK1后就自然能根据RK1来查询C2的值了 这是构建二级索引大概思路，其他组合查询的联合索引的建立也类似。</li>
+</ul>
+<p><strong>HBase在0.92之后引入了coprocessors，提供了一系列的钩子，让我们能够轻易实现访问控制和二级索引的特性。</strong></p>
+<h2 id="9-案例1（observer二级索引）"><a href="#9-案例1（observer二级索引）" class="headerlink" title="9. 案例1（observer二级索引）"></a>9. 案例1（observer二级索引）</h2><p>该例子使用RegionObserver实现在<strong>写主表之前将索引数据先写到另外一个表</strong></p>
+<p>相当于表一添加，触发表二信息的添加或者更新</p>
+<p>以关注表，粉丝表为例。</p>
+<p>关注表：zhangsan 关注了 gulinazha</p>
+<p>粉丝表：zhangsan 是gulinazha 的粉丝</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">put &apos;insight:bonaGuanzhu&apos;, &apos;zhangsan&apos;, &apos;cf:star&apos;, &apos;gulinazha&apos;</span><br><span class="line">put &apos;insight:bonaFans&apos;, &apos;gulinazha&apos;, &apos;cf:fensi&apos;, &apos;zhangsan&apos; //触发添加</span><br></pre></td></tr></table></figure>
+<ol>
+<li>java实现代码</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hbase.HBaseConfiguration;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hbase.client.Connection;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hbase.client.ConnectionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hbase.client.Put;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hbase.client.Table;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hbase.*;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hbase.client.Durability;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hbase.regionserver.wal.WALEdit;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hbase.coprocessor.ObserverContext;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HbaseCoprocessorTest</span> <span class="keyword">extends</span> <span class="title">BaseRegionObserver</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> Connection connection;</span><br><span class="line">    <span class="keyword">static</span> Configuration configuration;</span><br><span class="line">    <span class="keyword">static</span> Table table = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        configuration = HBaseConfiguration.create();</span><br><span class="line">        configuration.addResource(<span class="string">"hbase-site.xml"</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 取得一个数据库连接对象</span></span><br><span class="line">            connection = ConnectionFactory.createConnection(configuration);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/***</span></span><br><span class="line"><span class="comment">     * 此方法是在put方法调用之前进行调用</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> e</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> put 是要进行插入的那条数据</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> edit</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> durability</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">prePut</span><span class="params">(ObserverContext&lt;RegionCoprocessorEnvironment&gt; e, Put put, WALEdit edit, Durability durability)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">//获取put对象里面的rowkey'zhangsan'</span></span><br><span class="line">        <span class="keyword">byte</span>[] row = put.getRow();</span><br><span class="line">        table = connection.getTable(TableName.valueOf(<span class="string">"insight:bonaFans"</span>));</span><br><span class="line">        <span class="comment">//获取put对象里面的cell</span></span><br><span class="line">        List&lt;Cell&gt; list = put.get(<span class="string">"cf"</span>.getBytes(), <span class="string">"star"</span>.getBytes());</span><br><span class="line">        Cell cell = list.get(<span class="number">0</span>);</span><br><span class="line">        <span class="comment">//创建一个新的put对象</span></span><br><span class="line">        Put new_put = <span class="keyword">new</span> Put(cell.getValueArray());</span><br><span class="line">        new_put.addColumn(<span class="string">"cf"</span>.getBytes(), <span class="string">"fensi"</span>.getBytes(), row);</span><br><span class="line">        table.put(new_put);</span><br><span class="line">        connection.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li><p>打包成jar, 重命名为 guanzhu.jar 并上传HDFS目录/bona/hbase下面</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop fs -put guanzhu.jar /bona/hbase</span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+<li><p>打开 hbase shell</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">disable &apos;insight:bonaGuanzhu&apos;</span><br><span class="line">alter &apos;insight:bonaGuanzhu&apos;, METHOD =&gt; &apos;table_att&apos;, &apos;coprocessor&apos; =&gt; &apos;hdfs://cdh-node1.cs1cloud.internal/bona/hbase/guanzhu.jar|com.hypers.insight.HbaseCoprocessorTest|1001|&apos;</span><br><span class="line">enable &apos;insight:bonaGuanzhu&apos;</span><br><span class="line"></span><br><span class="line">desc &apos;insight:bonaGuanzhu&apos;</span><br><span class="line">put &apos;insight:bonaGuanzhu&apos;, &apos;zhangsan&apos;, &apos;cf:star&apos;, &apos;gulinazha&apos;</span><br><span class="line">scan &apos;insight:bonaGuanzhu&apos;</span><br><span class="line">scan &apos;insight:bonaFans&apos;</span><br><span class="line"></span><br><span class="line">卸载协处理器</span><br><span class="line">disable &apos;insight:bonaGuanzhu&apos;</span><br><span class="line">alter &apos;insight:bonaGuanzhu&apos;,METHOD=&gt;&apos;table_att_unset&apos;,NAME=&gt;&apos;coprocessor$1&apos;</span><br><span class="line">enable &apos;insight:bonaGuanzhu&apos;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="10-案例2（observer-读写分离）"><a href="#10-案例2（observer-读写分离）" class="headerlink" title="10. 案例2（observer,读写分离）"></a>10. 案例2（observer,读写分离）</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">假定某个表 insight:bonaRW 有A和B两个列</span><br><span class="line">1. 当我们向A列插入数据的时候通过协处理器像B列也插入数据。</span><br><span class="line">2.在读取数据的时候只允许客户端读取B列数据而不能读取A列数据。换句话说A列是只写 B列是只读的。（为了简单起见，用户在读取数据的时候需要制定列名）</span><br><span class="line">3. A列值必须是整数，换句话说B列值也自然都是整数</span><br><span class="line"></span><br><span class="line">4.当删除操作的时候不能指定删除B列</span><br><span class="line">5.当删除A列的时候同时需要删除B列</span><br><span class="line">6.对于其他列的删除不做检查</span><br></pre></td></tr></table></figure>
+<p>代码见github.  <a href="https://www.cnblogs.com/ios123/p/6370724.html" target="_blank" rel="noopener">https://www.cnblogs.com/ios123/p/6370724.html</a></p>
+<h2 id="11-案例3（endpoint）"><a href="#11-案例3（endpoint）" class="headerlink" title="11. 案例3（endpoint）"></a>11. 案例3（endpoint）</h2><p>准备工作参考：<a href="https://blog.csdn.net/hp_cpp/article/details/81561310" target="_blank" rel="noopener">https://blog.csdn.net/hp_cpp/article/details/81561310</a></p>
+<p>实例参考：<a href="https://www.cnblogs.com/ios123/p/6379407.html" target="_blank" rel="noopener">https://www.cnblogs.com/ios123/p/6379407.html</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">完成hbase表 insight:bona_endpoint 表的count,max,min,sum,avg</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">通过代码的方式实现 协处理器的添加，使用，删除</span><br><span class="line">主要分为5个步骤：</span><br><span class="line">	1.环境准备（使用Protobuf 生成序列化类）</span><br><span class="line">	2.Endpoint Coprocessor服务端实现</span><br><span class="line">	3.Endpoint Coprocessor客户端实现</span><br><span class="line">	4.部署以及调用</span><br></pre></td></tr></table></figure>
+<h3 id="11-1-环境准备"><a href="#11-1-环境准备" class="headerlink" title="11.1 环境准备"></a>11.1 环境准备</h3><p>HBase在HMaster、RegionServer内部，创建了RpcServer实例，并可与Client三者之间实现了Rpc调用。</p>
+<p>HBase0.95版本引入了Google-Protobuf作为中间数据组织方式，并在Protobuf提供的Rpc接口之上，实现了基于服务的Rpc实现。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Protobuf Buffers是一种轻便高效的结构化数据存储格式，可以用于数据序列化。适合做数据存储或RPC数据交换格式。用于通讯协议、数据存储等领域的语言无关、平台无关、可扩展的序列化结构数据格式。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>下载Protobuf2.5.0版本的安装包。因此maven环境使用的是2.5.0，因此这里需要和项目的版本对应哦。</p>
+</li>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/protocolbuffers/protobuf/releases/tag/v2.5.0</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>win10 下解压到指定目录，这里用root表示</p>
+</li>
+<li><p>准备HBase测试表，建表脚本及测试数据如下</p>
+</li>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">这里使用代码添加 见github：</span><br><span class="line">https://github.com/fenghuayangyi/hbasedemo/blob/master/src/main/java/com/hypers/insight/HbaseTest.java</span><br><span class="line"></span><br><span class="line">createTable(&quot;insight:bona_endpoint&quot;, &quot;info&quot;);</span><br><span class="line">addRowData(&quot;insight:bona_endpoint&quot;,&quot;001&quot;,&quot;info&quot;,&quot;sales&quot;,&quot;15.5&quot;);</span><br><span class="line">addRowData(&quot;insight:bona_endpoint&quot;,&quot;002&quot;,&quot;info&quot;,&quot;sales&quot;,&quot;12.8&quot;);</span><br><span class="line">addRowData(&quot;insight:bona_endpoint&quot;,&quot;003&quot;,&quot;info&quot;,&quot;sales&quot;,&quot;13.5&quot;);</span><br><span class="line">addRowData(&quot;insight:bona_endpoint&quot;,&quot;004&quot;,&quot;info&quot;,&quot;sales&quot;,&quot;11.0&quot;);</span><br><span class="line">addRowData(&quot;insight:bona_endpoint&quot;,&quot;005&quot;,&quot;info&quot;,&quot;sales&quot;,&quot;9.5&quot;);</span><br><span class="line">addRowData(&quot;insight:bona_endpoint&quot;,&quot;001&quot;,&quot;info&quot;,&quot;age&quot;,&quot;27&quot;);</span><br><span class="line">addRowData(&quot;insight:bona_endpoint&quot;,&quot;002&quot;,&quot;info&quot;,&quot;age&quot;,&quot;28&quot;);</span><br><span class="line">addRowData(&quot;insight:bona_endpoint&quot;,&quot;003&quot;,&quot;info&quot;,&quot;age&quot;,&quot;26&quot;);</span><br><span class="line">addRowData(&quot;insight:bona_endpoint&quot;,&quot;004&quot;,&quot;info&quot;,&quot;age&quot;,&quot;33&quot;);</span><br><span class="line">addRowData(&quot;insight:bona_endpoint&quot;,&quot;005&quot;,&quot;info&quot;,&quot;age&quot;,&quot;36&quot;);</span><br><span class="line"></span><br><span class="line">也可以通过 hbase shell:</span><br><span class="line">create &apos;insight:bona_endpoint&apos;</span><br><span class="line">put &apos;insight:bona_endpoint&apos;,&apos;001&apos;,&apos;info:sales&apos;,15.5</span><br><span class="line">put &apos;insight:bona_endpoint&apos;,&apos;002&apos;,&apos;info:sales&apos;,12.8</span><br><span class="line">put &apos;insight:bona_endpoint&apos;,&apos;003&apos;,&apos;info:sales&apos;,13.5</span><br><span class="line">put &apos;insight:bona_endpoint&apos;,&apos;004&apos;,&apos;info:sales&apos;,11.0</span><br><span class="line">put &apos;insight:bona_endpoint&apos;,&apos;005&apos;,&apos;info:sales&apos;,9.5</span><br><span class="line">put &apos;insight:bona_endpoint&apos;,&apos;001&apos;,&apos;info:age&apos;,27</span><br><span class="line">put &apos;insight:bona_endpoint&apos;,&apos;002&apos;,&apos;info:age&apos;,28</span><br><span class="line">put &apos;insight:bona_endpoint&apos;,&apos;003&apos;,&apos;info:age&apos;,26</span><br><span class="line">put &apos;insight:bona_endpoint&apos;,&apos;004&apos;,&apos;info:age&apos;,33</span><br><span class="line">put &apos;insight:bona_endpoint&apos;,&apos;005&apos;,&apos;info:age&apos;,36</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用Protobuf生成序列化类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.准备MyFirstCoprocessor.proto文件,放到root/bin目录下 见github</span><br><span class="line">https://github.com/fenghuayangyi/hbasedemo/blob/master/src/filebackup/MyFirstCoprocessor.proto</span><br><span class="line">2.进入cmd命令行,切换到root/bin目录，执行如下命令生成Java类</span><br><span class="line">protoc --java_out=./ MyFirstCoprocessor.proto</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="11-2-Endpoint-Coprocessor服务端实现"><a href="#11-2-Endpoint-Coprocessor服务端实现" class="headerlink" title="11.2 Endpoint Coprocessor服务端实现"></a>11.2 Endpoint Coprocessor服务端实现</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1.maven中添加依赖 见github</span><br><span class="line">主要涉及：hadoop-client,hadoop-common,hbase-client,hbase-examples,protobuf-java</span><br><span class="line"></span><br><span class="line">2.将root/bin目录下生成的类拷贝到指定的package目录下。与.proto文件指定的java_package包目录一致。</span><br><span class="line"></span><br><span class="line">3.新建server包，在包下新建MyFirstCoprocessorEndpoint实现类 内容见github</span><br><span class="line">https://github.com/fenghuayangyi/hbasedemo/blob/master/src/main/java/com/hypers/insight/hbaseendpoint/server/MyFirstCoprocessorEndPoint.java</span><br></pre></td></tr></table></figure>
+<h3 id="11-3-Endpoint-Coprocessor客户端实现"><a href="#11-3-Endpoint-Coprocessor客户端实现" class="headerlink" title="11.3 Endpoint Coprocessor客户端实现"></a>11.3 Endpoint Coprocessor客户端实现</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">新建client包，在包下新建MyFirstCoprocessExample.java 内容见github</span><br><span class="line">https://github.com/fenghuayangyi/hbasedemo/blob/master/src/main/java/com/hypers/insight/hbaseendpoint/client/MyFirstCoprocessExample.java</span><br></pre></td></tr></table></figure>
+<h3 id="11-4-部署以及调用"><a href="#11-4-部署以及调用" class="headerlink" title="11.4 部署以及调用"></a>11.4 部署以及调用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1.maven 编译代码</span><br><span class="line"></span><br><span class="line">2.将编译好的代码上传到hdfs指定目录</span><br><span class="line">    先将jar通过FZ传到hadoop的master node,然后将其传到hdfs指定目录</span><br><span class="line">    hadoop fs -mkdir -p /bona/hbase</span><br><span class="line">    hadoop fs -put /.../bona/hbasedemo-1.0-SNAPSHOT.jar /bona/hbase/hbasedemo-1.0-SNAPSHOT.jar</span><br><span class="line">    hadoop fs -ls /bona/hbase</span><br><span class="line">3.运行MyFirstCoprocessorExample代码，查看运行结果。校验结果的正确性。</span><br></pre></td></tr></table></figure>
+<h3 id="11-5-总结"><a href="#11-5-总结" class="headerlink" title="11.5 总结"></a>11.5 总结</h3><p>开发HBase的Endpoint Coprocessor借助于Protobuf生成RPC请求数据交互类，我们只需要在生成的类基础上实现业务即可。</p>
+<p>HBase自带的也有AggregateImplementation类实现列的聚合，原生的不能同时对多个列进行聚合处理，如果需要多次聚合则需要多次调用RPC请求，HBase数据在<strong>不断的写入会出现每次聚合的结果有偏差</strong>，本示例<strong>将聚合放在一个RPC中处理可以减少RPC的请求次数并确保查询条件相同的情况下不会出现数据不一致问题</strong>。</p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : fenghuayangyi <br>
+        
+        原文链接 : <a href>https://github.com/fenghuayangyi/2019/12/18/大数据/HBase笔记/</a><br>
+        版权声明 : 本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/HBase/">
+              #HBase
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2019/12/15/大数据/sparksql/" target="_self">SparkSQL</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2020/01/10/设计模式/" target="_self">七大设计原则</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+   
+
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2018, 11, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

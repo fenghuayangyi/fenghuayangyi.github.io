@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  
+  
+  <title>Spark笔记-RDD&amp;SQL | shaohua&#39;s blog</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,Spark,">
+  
+
+  <script type="text/javascript">
+	$(document).ready(function() {
+	    //为超链接加上target='_blank'属性
+		$('a[href^="http"]').each(function() {
+			$(this).attr('target', '_blank');
+		});
+	});
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">Fenghuayangyi</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path>
+          
+            <a href="javascript:void(0);" v-else>抓到我</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://github.com/fenghuayangyi" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://blog.csdn.net/u011295626" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Spark笔记-RDD&SQL</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-12-15
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h1 id="spark笔记"><a href="#spark笔记" class="headerlink" title="spark笔记"></a>spark笔记</h1><h1 id="1-RDD知识"><a href="#1-RDD知识" class="headerlink" title="1. RDD知识"></a>1. RDD知识</h1><h2 id="1-1-RDD基础"><a href="#1-1-RDD基础" class="headerlink" title="1.1 RDD基础"></a>1.1 RDD基础</h2><p>RDD 可以理解为一个分布式对象集合，本质上是一个只读的分区记录集合。</p>
+<p><strong>RDD 具有容错机制，并且只读不能修改，可以执行确定的转换操作创建新的 RDD。</strong></p>
+<p>特点：</p>
+<ul>
+<li>只读，弹性（计算过程中内存不够时它会和磁盘进行数据交换）</li>
+<li>分布式（RDD分区的概念），基于内存（可以全部或部分缓存在内存中，在多次计算间重用）</li>
+</ul>
+<h2 id="1-2-RDD基本操作"><a href="#1-2-RDD基本操作" class="headerlink" title="1.2 RDD基本操作"></a>1.2 RDD基本操作</h2><p>转化（Transformation）操作和行动（Action）操作。</p>
+<ul>
+<li>Transformation：从一个 RDD 产生一个新的 RDD。</li>
+<li>Action：进行实际的计算。</li>
+</ul>
+<p><strong>RDD和普通HDFS的对比：</strong></p>
+<p>RDD 实质上是一种更为通用的迭代并行计算框架，用户可以显示控制计算的中间结果，然后将其自由运用于之后的计算。</p>
+<p>​    在大数据实际应用开发中存在许多迭代算法，如机器学习、图算法等，和交互式数据挖掘工具。<br>    这些应用场景的共同之处是在不同计算阶段之间会重用中间结果，即一个阶段的输出结果会作为下一个阶段的输入。</p>
+<p>​    RDD 正是为了满足这种需求而设计的。</p>
+<p>​    <strong>虽然 MapReduce 具有自动容错、负载平衡和可拓展性的优点，但是其最大的缺点是采用非循环式的数据流模型，使得在迭代计算时要进行大量的磁盘 I/O 操作。</strong></p>
+<h3 id="1-2-1-RDD的构建"><a href="#1-2-1-RDD的构建" class="headerlink" title="1.2.1 RDD的构建"></a>1.2.1 RDD的构建</h3><ul>
+<li><p>内存构建</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">val rdd01 = sc.makeRDD(List(1,2,3,4,5,6))</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">val rdd = sc.parallelize(Array(1,2,2,1),4) </span><br><span class="line">//参数1：待并行化处理的集合；参数2：分区个数</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>文件系统构建/加载外部数据集</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">val rdd = sc.textFile(“file:///D:/sparkdata.txt”,1)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">//用textFile方法加载</span><br><span class="line">//该方法返回一个RDD，该RDD代表的数据集每个元素都是一个字符串，每个字符串代表输入文件中的一行</span><br><span class="line">val rddText = sc.textFile(&quot;helloSpark.txt&quot;)</span><br><span class="line"></span><br><span class="line">//用wholeTextfiles方法加载</span><br><span class="line">//这个方法读取目录下的所有文本文件，然后返回一个KeyValue对RDD（每一个键值对对应一个文件，key为文件路径，value为文件内容）</span><br><span class="line">val rddW = sc.wholeTextFile(&quot;path/to/my-data/*.txt&quot;)</span><br><span class="line"></span><br><span class="line">//用sequenceFile方法加载</span><br><span class="line">//此方法要求从SequenceFile文件中获取键值对数据，返回一个KeyValue对RDD（使用此方法时，还需要提供类型）</span><br><span class="line">val rdd = sc.sequenceFile[String,String](&quot;some-file&quot;)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="1-2-2-Transformation（转换操作）"><a href="#1-2-2-Transformation（转换操作）" class="headerlink" title="1.2.2 Transformation（转换操作）"></a>1.2.2 Transformation（转换操作）</h3><p>RDD 的转换操作是返回新的 RDD 的操作。<strong>转换出来的 RDD 是惰性求值的，只有在Action操作中用到这些 RDD 时才会被计算</strong>。</p>
+<p><em>许多转换操作都是针对各个元素的，也就是说，这些<strong>转换操作每次只会操作 RDD 中的一个元素</strong>，不过并不是所有的转换操作都是这样的。</em></p>
+<p>​                    <strong>表 1 RDD转换操作（rdd1={1, 2, 3, 3}，rdd2={3,4,5})</strong></p>
+<table>
+<thead>
+<tr>
+<th>函数名</th>
+<th>作用</th>
+<th>示例</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>map()</td>
+<td>将函数应用于 RDD 的每个元素，返回值是新的 RDD</td>
+<td>rdd1.map(x=&gt;x+l)</td>
+<td>{2,3,4,4}</td>
+</tr>
+<tr>
+<td>flatMap()</td>
+<td>将函数应用于 RDD 的每个元素，将元素数据进行拆分，变成迭代器，返回值是新的 RDD</td>
+<td>rdd1.flatMap(x=&gt;x.to(3)) x.to(3) 从x打印到3</td>
+<td>{1,2,3,2,3,3,3}</td>
+</tr>
+<tr>
+<td>filter()</td>
+<td>函数会过滤掉不符合条件的元素，返回值是新的 RDD</td>
+<td>rdd1.filter(x=&gt;x!=1)</td>
+<td>{2,3,3}</td>
+</tr>
+<tr>
+<td>distinct()</td>
+<td>将 RDD 里的元素进行去重操作     内部实现相当于分区内，以及全量分别做了去重</td>
+<td>rdd1.distinct()</td>
+<td>(1,2,3)</td>
+</tr>
+<tr>
+<td>union()</td>
+<td>生成包含两个 RDD 所有元素的新的 RDD</td>
+<td>rdd1.union(rdd2)</td>
+<td>{1,2,3,3,3,4,5}</td>
+</tr>
+<tr>
+<td>intersection()</td>
+<td>求出两个 RDD 的共同元素</td>
+<td>rdd1.intersection(rdd2)</td>
+<td>{3}</td>
+</tr>
+<tr>
+<td>subtract()</td>
+<td>将原 RDD 里和参数 RDD 里相同的元素去掉   （差集）</td>
+<td>rdd1.subtract(rdd2)</td>
+<td>{1,2}</td>
+</tr>
+<tr>
+<td>cartesian()</td>
+<td>求两个 RDD 的笛卡儿积</td>
+<td>rdd1.cartesian(rdd2)</td>
+<td>{(1,3),(1,4)……(3,5)}</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-2-3-Action（行动操作）"><a href="#1-2-3-Action（行动操作）" class="headerlink" title="1.2.3 Action（行动操作）"></a>1.2.3 Action（行动操作）</h3><p>行动操作用于执行计算并按指定的方式输出结果。</p>
+<p><strong>行动操作接受 RDD，但是返回非 RDD，即输出一个值或者结果。在 RDD 执行过程中，真正的计算发生在行动操作</strong></p>
+<p>​                <strong>表 2 RDD 行动操作（rdd={1,2,3,3}）</strong></p>
+<table>
+<thead>
+<tr>
+<th>函数名</th>
+<th>作用</th>
+<th>示例</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>collect()</td>
+<td>返回 RDD 的所有元素</td>
+<td>rdd.collect()</td>
+<td>{1,2,3,3}</td>
+</tr>
+<tr>
+<td>count()</td>
+<td>RDD 里元素的个数</td>
+<td>rdd.count()</td>
+<td>4</td>
+</tr>
+<tr>
+<td>countByValue()</td>
+<td>各元素在 RDD 中的出现次数</td>
+<td>rdd.countByValue()</td>
+<td>{(1,1),(2,1),(3,2})}</td>
+</tr>
+<tr>
+<td>take(num)</td>
+<td>从 RDD 中返回 num 个元素</td>
+<td>rdd.take(2)</td>
+<td>{1,2}</td>
+</tr>
+<tr>
+<td>top(num)</td>
+<td>从 RDD 中，按照默认（降序）或者指定的排序返回最前面的 num 个元素</td>
+<td>rdd.top(2)</td>
+<td>{3,3}</td>
+</tr>
+<tr>
+<td>reduce()</td>
+<td>并行整合所有 RDD 数据，如求和操作</td>
+<td>rdd.reduce((x,y)=&gt;x+y)</td>
+<td>9</td>
+</tr>
+<tr>
+<td>fold(zero)(func)</td>
+<td>和 reduce() 功能一样，但需要提供初始值</td>
+<td>rdd.fold(0)((x,y)=&gt;x+y)</td>
+<td>9</td>
+</tr>
+<tr>
+<td>foreach(func)</td>
+<td>对 RDD 的每个元素都使用特定函数</td>
+<td>rdd1.foreach(x=&gt;printIn(x))</td>
+<td>打印每一个元素</td>
+</tr>
+<tr>
+<td>saveAsTextFile(path)</td>
+<td>将数据集的元素，以文本的形式保存到文件系统中</td>
+<td>rdd1.saveAsTextFile(file://home/test)</td>
+<td></td>
+</tr>
+<tr>
+<td>saveAsSequenceFile(path)</td>
+<td>将数据集的元素，以顺序文件格式保存到指 定的目录下</td>
+<td>saveAsSequenceFile(hdfs://home/test)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>aggregateByKey</strong></p>
+<p>aggregateByKey(1)(2,3)</p>
+<p>参数1：为初始值</p>
+<p>参数2：操作1</p>
+<p>参数3：操作2</p>
+<p>对RDD中相同的Key值进行聚合操作，在聚合过程中使用了一个中立的初始值。返回值的类型不需要和RDD中value的类型一致。</p>
+<p>首先根据分区，相同key的值，基于参数1，操作1，进行合并。</p>
+<p>然后各分区结果，相同的key，基于操作2进行合并。</p>
+<p>最后结果是key，key对应的结果。</p>
+<p><strong>aggregate() 函数 : agregate(zero)(seqOp,combOp)  </strong></p>
+<p>aggregate() 函数的返回类型不需要和 RDD 中的元素类型一致，所以<strong>在使用时，需要提供所期待的返回类型的初始值</strong>，然后通过一个函数把 RDD 中的元素累加起来放入累加器。</p>
+<hr>
+<ul>
+<li>首先使用 <strong>seqOp</strong> 操作聚合各分区中的元素</li>
+<li>然后再使用 <strong>combOp</strong> 操作把所有分区的聚合结果再次聚合</li>
+<li>两个操作的初始值都是 zero。</li>
+</ul>
+<p><strong>seqOp 的操作是遍历分区中的所有元素 T，第一个 T 跟 zero 做操作，结果再作为与第二个 T 做操作的 zero，直到遍历完整个分区。</strong></p>
+<p><strong>combOp 操作是把各分区聚合的结果再聚合。aggregate() 函数会返回一个跟 RDD 不同类型的值。</strong></p>
+<p>因此，需要 seqOp 操作来把分区中的元素 T 合并成一个 U，以及 combOp 操作把所有 U 聚合。</p>
+<p>举个例子：（一进二出，进的值是value, acc._1和acc._2指的是初始元组（0，0）中的第一，二个元素）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> val rdd = List (1,2,3,4)</span><br><span class="line"> val input = sc.parallelize(rdd)</span><br><span class="line"></span><br><span class="line"> val result=input.aggregate((0,0))((acc,value)=&gt;(acc._1+value,acc._2+1),(acc1,acc2)=&gt;(acc1._1+acc2._1,acc1._2+acc2._2))</span><br><span class="line"> </span><br><span class="line">--(resultInt,Int) = (10,4)</span><br><span class="line">val avg = result._1 / result._2</span><br><span class="line">avg:Int = 2.5</span><br></pre></td></tr></table></figure>
+<p>程序的详细过程大概如下。</p>
+<p>定义一个初始值 (0,0)，即所期待的返回类型的初始值。代码 (acc,value) =&gt; (acc._1 + value,acc._2 + 1) 中的 value 是函数定义里面的 T，这里是 List 里面的元素。acc._1 + value，acc._2 + 1 的过程如下。</p>
+<p>(0+1,0+1)→(1+2,1+1)→(3+3,2+1)→(6+4,3+1)，结果为(10,4)。</p>
+<p>实际的 Spark 执行过程是分布式计算，可能会把 List 分成多个分区，假如是两个：p1(1,2) 和 p2(3,4)。</p>
+<p>经过计算，各分区的结果分别为 (3,2) 和 (7,2)。这样，执行 (acc1,acc2) =&gt; (acc1._1 + acc2._2,acc1._2 + acc2._2) 的结果就是 (3+7,2+2)，即 (10,4)，然后可计算平均值。<br><strong>acc._1 : 第一个参数   acc._2 ：第二个参数</strong></p>
+<h2 id="1-3-Spark-Stage的划分"><a href="#1-3-Spark-Stage的划分" class="headerlink" title="1.3 Spark Stage的划分"></a>1.3 Spark Stage的划分</h2><p>RDD之间有一系列的依赖关系，依赖关系又分为窄依赖和宽依赖。</p>
+<p>Spark中的Stage其实就是一组并行的任务，任务是一个个的task 。</p>
+<ul>
+<li><p><strong>窄依赖</strong></p>
+<p>父RDD和子RDD partition之间的关系是一对一的。</p>
+<p><strong>不会有shuffle的产生。父RDD</strong>的<strong>一个分区</strong>去到<strong>子RDD的一个分区</strong>。</p>
+</li>
+<li><p><strong>宽依赖</strong></p>
+<p>父RDD与子RDD partition之间的关系是一对多。<strong>会有shuffle的产生。</strong></p>
+<p><strong>父RDD的一个分区的数据去到子RDD的不同分区里面。</strong></p>
+</li>
+<li><p>总结：</p>
+<p>窄依赖：可以理解为独生子女</p>
+<p>宽依赖：可以理解为超生</p>
+</li>
+</ul>
+<h3 id="1-3-1-Stage的概念"><a href="#1-3-1-Stage的概念" class="headerlink" title="1.3.1 Stage的概念"></a>1.3.1 Stage的概念</h3><p>Spark任务会根据<strong>RDD之间的依赖关系，形成一个DAG有向无环图</strong>。</p>
+<p>DAG会提交给DAGScheduler，DAGScheduler会把DAG划分相互依赖的多个stage，<strong>划分stage的依据就是RDD之间的宽窄依赖</strong>。</p>
+<p><strong>遇到宽依赖就划分stage</strong>,每个stage包含一个或多个task任务。</p>
+<p>将一个stage中的tasks以taskSet的形式提交给<strong>TaskScheduler运行</strong>。 即<strong>stage是由一组并行的task组成。</strong></p>
+<h3 id="1-3-2-shuffle-和-stage"><a href="#1-3-2-shuffle-和-stage" class="headerlink" title="1.3.2 shuffle 和 stage"></a>1.3.2 shuffle 和 stage</h3><p><strong>shuffle 是划分 DAG 中 stage 的标识,同时影响 Spark 执行速度的关键步骤</strong>. </p>
+<p>窄依赖跟宽依赖的区别是<strong>是否发生 shuffle(洗牌) 操作</strong>.</p>
+<p><strong>宽依赖会发生 shuffle 操作.</strong></p>
+<p><strong>shuffle 操作是 spark 中最耗时的操作,应尽量避免不必要的 shuffle</strong>. </p>
+<ul>
+<li>宽依赖主要有两个过程: shuffle write 和 shuffle fetch. 类似 Hadoop 的 Map 和 Reduce 阶段.shuffle write 将 ShuffleMapTask 任务产生的中间结果缓存到内存中, shuffle fetch 获得 ShuffleMapTask 缓存的中间结果进行 ShuffleReduceTask 计算,<strong>这个过程容易造成OutOfMemory</strong>. </li>
+</ul>
+<p><strong>shuffle 操作的时候可以用 combiner 压缩数据,减少 IO 的消耗</strong></p>
+<h2 id="1-4-SparkContext、SparkConf和SparkSession"><a href="#1-4-SparkContext、SparkConf和SparkSession" class="headerlink" title="1.4 SparkContext、SparkConf和SparkSession"></a>1.4 SparkContext、SparkConf和SparkSession</h2><p>Application：用户编写的Spark应用程序，Driver 即运行上述 Application 的 main() 函数并且创建 SparkContext。<br><strong>SparkContext</strong>：整个应用的上下文，控制应用的生命周期。</p>
+<p>RDD：不可变的数据集合，可由 SparkContext 创建，是 Spark 的基本计算单元。</p>
+<p><strong>SparkSession</strong>是Spark2.0新引入的。</p>
+<p>SparkSession内部封装了SparkConf、SparkContext、SQLContext、HiveContext。</p>
+<p>因此SparkSession可以用他们所有的api</p>
+<h1 id="2-Spark-SQL"><a href="#2-Spark-SQL" class="headerlink" title="2. Spark SQL"></a>2. Spark SQL</h1><h2 id="2-1-概述"><a href="#2-1-概述" class="headerlink" title="2.1 概述"></a>2.1 概述</h2><p>Spark SQL是Spark用来<strong>处理结构化数据</strong>的一个模块，</p>
+<p>它提供了2个编程抽象：<strong>DataFrame</strong>和<strong>DataSet</strong>，并且作为<strong>分布式SQL查询引擎</strong>的作用。</p>
+<h3 id="2-1-1-特点"><a href="#2-1-1-特点" class="headerlink" title="2.1.1 特点"></a>2.1.1 特点</h3><ul>
+<li>易整合</li>
+<li>统一的数据访问方式</li>
+<li>兼容Hive</li>
+<li>标准的数据连接</li>
+</ul>
+<h3 id="2-1-2-DataFrame"><a href="#2-1-2-DataFrame" class="headerlink" title="2.1.2 DataFrame"></a>2.1.2 DataFrame</h3><p>DataFrame也是一个分布式数据容器。</p>
+<p>但DataFrame更像传统数据库的二维表格，除了数据以外，还记录数据的结构信息，即schema。</p>
+<p>同时，与Hive类似，<strong>DataFrame也支持嵌套数据类型</strong>（struct、array和map）。</p>
+<p>DataFrame是为数据提供了Schema的视图。可以把它当做数据库中的一张表来对待，DataFrame也是懒执行的。</p>
+<p>​    性能上比RDD要高，主要原因：</p>
+<p>​        优化的执行计划：查询计划通过Spark catalyst optimiser进行优化。</p>
+<h3 id="2-1-3-DataSet"><a href="#2-1-3-DataSet" class="headerlink" title="2.1.3 DataSet"></a>2.1.3 DataSet</h3><p>DataSet是</p>
+<p>​    1)Dataframe API的一个扩展，是Spark最新的数据抽象。</p>
+<p>​    2)用户友好的API风格，既具有类型安全检查也具有Dataframe的查询优化特性。</p>
+<p>​    3)Dataset支持编解码器，当需要访问非堆上的数据时可以避免反序列化整个对象，提高了效率。</p>
+<p>​    4)样例类被用来在Dataset中定义数据的结构信息，<strong>样例类中每个属性的名称直接映射到DataSet中的字段名称</strong>。</p>
+<p>​    5)Dataframe是Dataset的特列，DataFrame=Dataset[Row] ，所以可以通过as方法将Dataframe转换为Dataset。Row是一个类型，跟Car、Person这些的类型一样，所有的表结构信息我都用Row来表示。</p>
+<p>​    6)DataSet是强类型的。比如可以有Dataset[Car]，Dataset[Person].</p>
+<p>​    7)DataFrame只是知道字段，但是不知道字段的类型，所以在执行这些操作的时候是没办法在编译的时候检查是否类型失败的，比如你可以对一个String进行减法操作，在执行的时候才报错，而DataSet不仅仅知道字段，而且知道字段类型，所以有更严格的错误检查。就跟JSON对象和类对象之间的类比。</p>
+<h2 id="2-2-SparkSQL编程"><a href="#2-2-SparkSQL编程" class="headerlink" title="2.2. SparkSQL编程"></a>2.2. SparkSQL编程</h2><h3 id="2-2-1-SparkSession"><a href="#2-2-1-SparkSession" class="headerlink" title="2.2.1 SparkSession"></a>2.2.1 SparkSession</h3><p>在<strong>老spark的版本</strong>中，SparkSQL提供两种SQL查询起始点：一个叫<strong>SQLContext</strong>，用于Spark自己提供的SQL查询；一个叫<strong>HiveContext</strong>，用于连接Hive的查询。</p>
+<p><strong>SparkSession</strong>是Spark最新的SQL查询起始点，实质上<strong>是SQLContext和HiveContext的组合</strong>，所以在SQLContext和HiveContext上可用的API在SparkSession上同样是可以使用的。<strong>SparkSession内部封装了sparkContext</strong>，所以计算实际上是由sparkContext完成的。</p>
+<h3 id="2-2-2-DataFrame（DataSet基本一致）"><a href="#2-2-2-DataFrame（DataSet基本一致）" class="headerlink" title="2.2.2 DataFrame（DataSet基本一致）"></a>2.2.2 DataFrame（DataSet基本一致）</h3><h4 id="2-2-2-1-创建"><a href="#2-2-2-1-创建" class="headerlink" title="2.2.2.1 创建"></a>2.2.2.1 创建</h4><p>在Spark SQL中SparkSession是创建DataFrame和执行SQL的入口，</p>
+<p>创建DataFrame有三种方式：</p>
+<ul>
+<li>通过Spark的数据源进行创建</li>
+<li>从一个存在的RDD进行转换</li>
+<li>从Hive Table进行查询返回</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1. 从Spark数据源进行创建</span><br><span class="line">1)查看Spark数据源进行创建的文件格式</span><br><span class="line">	spark.read.</span><br><span class="line">	csv   format   jdbc   json   load   option   options   orc   		parquet   schema   table   text   textFile</span><br><span class="line">2)读取json文件创建DataFrame</span><br><span class="line">	val df=spark.read.json(&quot;/opt/module/spark/.../people.json&quot;)</span><br><span class="line">3）展示结果</span><br><span class="line">	df.show</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">2. 从RDD进行转换</span><br><span class="line">注意：如果需要RDD与DF或者DS之间操作，那么都需要引入 import spark.implicits._  【spark不是包名，而是sparkSession对象的名称】</span><br><span class="line"></span><br><span class="line">import spark.implicits._</span><br><span class="line">val peopleRDD = sc.textFile(&quot;examples/src/main/resources/people.txt&quot;)</span><br><span class="line">1)手动转换</span><br><span class="line">peopleRDD.map&#123;x=&gt;</span><br><span class="line">    val para = x.split(&quot;,&quot;);					  				 		(para(0),para(1).trim.toInt)</span><br><span class="line">	&#125;.toDF(&quot;name&quot;,&quot;age&quot;)</span><br><span class="line">2）通过反射确定（需要用到样例类）</span><br><span class="line">	（1）创建一个样例类</span><br><span class="line">	case class People(name:String, age:Int)</span><br><span class="line">	（2）根据样例类将RDD转换为DataFrame</span><br><span class="line">	peopleRDD.map&#123; x =&gt; </span><br><span class="line">	val para = x.split(&quot;,&quot;);</span><br><span class="line">	People(para(0),para(1).trim.toInt)</span><br><span class="line">	&#125;.toDF</span><br><span class="line">3）通过编程的方式（--了解--）</span><br><span class="line">	（1）导入所需的类型</span><br><span class="line">	import org.apache.spark.sql.types._</span><br><span class="line">	（2）创建Schema</span><br><span class="line">	val structType: StructType = StructType(StructField(&quot;name&quot;, StringType) :: StructField(&quot;age&quot;, IntegerType) :: Nil)</span><br><span class="line">	（3）导入所需的类型</span><br><span class="line">	import org.apache.spark.sql.Row</span><br><span class="line">	（4）根据给定的类型创建二元组RDD</span><br><span class="line">	val data = peopleRDD.map&#123; x =&gt; </span><br><span class="line">	val para = x.split(&quot;,&quot;);</span><br><span class="line">	Row(para(0),para(1).trim.toInt)&#125;</span><br><span class="line">	（5）根据数据及给定的schema创建DataFrame</span><br><span class="line">	val dataFrame = spark.createDataFrame(data, structType)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">3. 从Hive Table进行查询返回</span><br><span class="line">3.5节</span><br></pre></td></tr></table></figure>
+<h4 id="2-2-2-2-SQL风格语法"><a href="#2-2-2-2-SQL风格语法" class="headerlink" title="2.2.2.2 SQL风格语法"></a>2.2.2.2 SQL风格语法</h4><ol>
+<li><p>创建DF</p>
+<p>spark.read.json(“”)</p>
+</li>
+<li><p>对DataFrame创建一个临时表</p>
+<p>df.createOrReplaceTempView(“people”)</p>
+</li>
+<li><p>通过SQL语句实现查询全表</p>
+<p>val sqlDF = spark.sql(“SELECT * FROM people”)</p>
+</li>
+<li><p>结果展示</p>
+<p>sqlDF.show</p>
+</li>
+</ol>
+<p>注意：临时表是Session范围内的，Session退出后，表就失效了。</p>
+<p>如果想应用范围内有效，可以使用全局表。注意使用全局表时需要全路径访问，</p>
+<p>如：global_temp.people</p>
+<ol start="5">
+<li><p>对于DataFrame创建一个全局表</p>
+<p>df.createGlobalTempView(“people”)</p>
+</li>
+<li><p>通过SQL语句实现查询全表</p>
+<p>spark.sql(“SELECT * FROM global_temp.people”).show()</p>
+<p>spark.newSession().sql(“SELECT * FROM global_temp.people”).show()</p>
+</li>
+</ol>
+<h3 id="2-2-3-DataFrame与DataSet的互操作"><a href="#2-2-3-DataFrame与DataSet的互操作" class="headerlink" title="2.2.3 DataFrame与DataSet的互操作"></a>2.2.3 DataFrame与DataSet的互操作</h3><p>在使用一些特殊的操作时，一定要加上 import spark.implicits._ </p>
+<p>不然toDF、toDS无法使用。</p>
+<ol>
+<li><p>DataFrame转换为DataSe</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1）创建一个DateFrame</span><br><span class="line">val df = spark.read.json(&quot;examples/src/main/resources/people.json&quot;)</span><br><span class="line">2）创建一个样例类</span><br><span class="line">case class Person(name: String, age: Long)</span><br><span class="line">3）将DateFrame转化为DataSet</span><br><span class="line">df.as[Person]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>DataSet转换为DataFrame</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1）创建一个样例类</span><br><span class="line">case class Person(name: String, age: Long)</span><br><span class="line">2）创建DataSet</span><br><span class="line">val ds = Seq(Person(&quot;Andy&quot;, 32)).toDS()</span><br><span class="line">3）将DataSet转化为DataFrame</span><br><span class="line">val df = ds.toDF</span><br><span class="line">4)展示</span><br><span class="line">df.show</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="2-2-4-RDD、DataFrame、DataSet"><a href="#2-2-4-RDD、DataFrame、DataSet" class="headerlink" title="2.2.4 RDD、DataFrame、DataSet"></a>2.2.4 RDD、DataFrame、DataSet</h3><p>在SparkSQL中Spark为我们提供了两个新的抽象，分别是DataFrame和DataSet。</p>
+<p>他们和RDD有什么区别呢？首先从版本的产生上来看：</p>
+<p>​    RDD (Spark1.0) —&gt; Dataframe(Spark1.3) —&gt;Dataset(Spark1.6)</p>
+<p>如果同样的数据都给到这三个数据结构，他们分别计算之后，都会给出相同的结果。不同是的他们的执行效率和执行方式。</p>
+<p>在后期的Spark版本中，DataSet会逐步取代RDD和DataFrame成为唯一的API接口。</p>
+<h1 id="3-Spark调参"><a href="#3-Spark调参" class="headerlink" title="3. Spark调参"></a>3. Spark调参</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"></span><br><span class="line">export LANG=en_US.UTF-8</span><br><span class="line">export HADOOP_CONF_DIR=/etc/hadoop/conf</span><br><span class="line"></span><br><span class="line">date=$1</span><br><span class="line"></span><br><span class="line">WORK_HOME=/home/hypersuser/insight/insight-1.0.0/jobs</span><br><span class="line"></span><br><span class="line">TASK_CLASSPATH=</span><br><span class="line">for i in $&#123;WORK_HOME&#125;/taskLib/*.jar ; do</span><br><span class="line">   if [ ! -n &quot;$TASK_CLASSPATH&quot; ]; then</span><br><span class="line">      TASK_CLASSPATH=$i</span><br><span class="line">   else</span><br><span class="line">      TASK_CLASSPATH=$TASK_CLASSPATH,$i</span><br><span class="line">   fi</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line">num_executors=16</span><br><span class="line">executor_memory=16G</span><br><span class="line">driver_memory=2G</span><br><span class="line">executor_cores=1</span><br><span class="line">partition_number=256</span><br><span class="line"></span><br><span class="line">job_queue=`cat /home/hypersuser/insight/insight-1.0.0/jobs/conf/queue/daily_queue`</span><br><span class="line"></span><br><span class="line">spark2-submit --driver-class-path $&#123;WORK_HOME&#125;/conf:$&#123;WORK_HOME&#125;/lib/* \</span><br><span class="line">--jars &quot;$TASK_CLASSPATH&quot;,$WORK_HOME/conf/hbase-site.xml \</span><br><span class="line">--conf spark.port.maxRetries=100 \</span><br><span class="line">--conf spark.dynamicAllocation.enabled=true \</span><br><span class="line">--master yarn --deploy-mode client \</span><br><span class="line">--queue $&#123;job_queue&#125; \</span><br><span class="line">--num-executors $num_executors --executor-memory $executor_memory \</span><br><span class="line">--driver-memory $driver_memory --executor-cores $executor_cores \</span><br><span class="line">--class com.hypers.insight.tools.oreal.offlineplus.CdpLabelKIEOfflinePlus \</span><br><span class="line">$&#123;WORK_HOME&#125;/jobsLib/orealOffline/insight-orealoffline-1.0.0.jar $date</span><br></pre></td></tr></table></figure>
+<h2 id="3-1-关于执行脚本参数"><a href="#3-1-关于执行脚本参数" class="headerlink" title="3.1 关于执行脚本参数"></a>3.1 关于执行脚本参数</h2><ul>
+<li><p>涉及运行的参数</p>
+<p>num_executors, executor_memory, driver_memory, executor_cores,  partition_number</p>
+<p>num_executors  启动spark任务分配多少个Executor</p>
+<p>executor_memory 每个Executor的内存大小（spark.dynamicAllocation.enabled=true可以自适应？）</p>
+<p>driver_memory Driver的内存大小，调度器的内存，可适量，一般没必要太大。</p>
+<p>executor_cores 每个Executor的内core的数量。</p>
+<p>partition_number  分区数量，大了以后可以提高并发数</p>
+</li>
+<li><p>m</p>
+</li>
+</ul>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : fenghuayangyi <br>
+        
+        原文链接 : <a href>https://github.com/fenghuayangyi/2019/12/15/大数据/spark笔记/</a><br>
+        版权声明 : 本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/Spark/">
+              #Spark
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2019/12/12/消息队列/RabbitMQ/" target="_self">RabbitMQ</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2019/12/15/大数据/sparksql/" target="_self">SparkSQL</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+   
+
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2018, 11, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

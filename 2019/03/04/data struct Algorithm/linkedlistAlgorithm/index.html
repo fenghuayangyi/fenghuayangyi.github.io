@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  
+  
+  <title>面试准备之刷题总结：链表 | shaohua&#39;s blog</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="算法与数据结构,数据结构，面试,">
+  
+
+  <script type="text/javascript">
+	$(document).ready(function() {
+	    //为超链接加上target='_blank'属性
+		$('a[href^="http"]').each(function() {
+			$(this).attr('target', '_blank');
+		});
+	});
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">Fenghuayangyi</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path>
+          
+            <a href="javascript:void(0);" v-else>抓到我</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://github.com/fenghuayangyi" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://blog.csdn.net/u011295626" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>面试准备之刷题总结：链表</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-03-04
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/算法与数据结构/">
+            算法与数据结构
+          </a>
+      </span>
+    
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><hr>
+<h2 id="链表"><a href="#链表" class="headerlink" title=" 链表"></a><a name="1"> 链表</a></h2><ul>
+<li><a href="#3.1">1.从尾到头打印链表</a></li>
+<li><a href="#3.2">2.快速删除链表节点</a></li>
+<li><a href="#3.3">3.链表倒数第k节点</a></li>
+<li><a href="#3.4">4.反转链表</a></li>
+<li><a href="#3.5">5.合并两个有序链表</a></li>
+<li><a href="#3.6">6.复杂链表的复制</a></li>
+<li><a href="#3.7">7.两个链表中的第一个公共节点</a></li>
+</ul>
+<hr>
+<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><h2 id="链表-1"><a href="#链表-1" class="headerlink" title=" 链表"></a><a name="3"> 链表</a></h2><h3 id="1-从尾到头打印链表"><a href="#1-从尾到头打印链表" class="headerlink" title="1.  从尾到头打印链表"></a>1. <a name="3.1"> 从尾到头打印链表</a></h3><ol>
+<li><p>题目表述</p>
+<p>输入一个链表，从尾到头打印链表每个节点的值。</p>
+</li>
+</ol>
+<ol start="2">
+<li><p>解题思路</p>
+<p>可以从头到尾遍历一遍链表，将节点放入栈中，然后依次取出打印（后入先出）。</p>
+</li>
+</ol>
+<ol start="3">
+<li>代码</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*；</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ArrayList&lt;Integer&gt; <span class="title">printListFromTailToHead</span><span class="params">(ListNode listNode)</span> </span>&#123;</span><br><span class="line">        Stack&lt;Integer&gt; stack = <span class="keyword">new</span> Stack&lt;Integer&gt;();</span><br><span class="line">        <span class="keyword">while</span>(listNode!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            stack.push(listNode.val);</span><br><span class="line">            listNode = listNode.next;</span><br><span class="line">        &#125;</span><br><span class="line">        ArrayList&lt;Integer&gt; arr = <span class="keyword">new</span> ArrayList&lt;Integer&gt;();</span><br><span class="line">        <span class="keyword">while</span>(!stack.isEmpty())&#123;</span><br><span class="line">            arr.add(stack.pop());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> arr;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-快速删除链表节点"><a href="#2-快速删除链表节点" class="headerlink" title="2.  快速删除链表节点"></a>2. <a name="3.2"> 快速删除链表节点</a></h3><ol>
+<li><p>题目表述</p>
+<p>给定单向链表的头指针和一个结点指针，定义一个函数在 $O(1)$ 时间删除该结点。</p>
+</li>
+</ol>
+<ol start="2">
+<li><p>解题思路</p>
+<p>正常的做法肯定是在 $O(N)$ 时间内删除节点。而这么过分的要求，显然是通过“<strong>重新赋值</strong>”才能做到。</p>
+<p>比如要删除节点 a，那么就将 a.next 的 value 和 next 赋值给节点 a，然后删除 a.next。</p>
+<p>表面“看起来”像是删除了节点 a，其实是将其后节点的信息转移到了它自己身上。</p>
+<p>除此之外，对于最后一个节点，还是要退化成 $O(N)$ 的复杂度。而整体分析一下复杂度：</p>
+<p>$$ O(T) = (O(N) + O(1) * (n - 1)) / n = O(1) $$</p>
+</li>
+</ol>
+<ol start="3">
+<li>代码</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteNode</span><span class="params">(ListNode headNode,ListNode delNode)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(headNode==<span class="keyword">null</span>||delNode==<span class="keyword">null</span>)</span><br><span class="line">             <span class="keyword">return</span> ;</span><br><span class="line">        <span class="keyword">if</span> (delNode.next != <span class="keyword">null</span>) &#123;    <span class="comment">//  如果不是尾节点</span></span><br><span class="line">            ListNode nextNode = delNode.next;</span><br><span class="line">            delNode.data = nextNode.data;</span><br><span class="line">            delNode.next = nextNode.next;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (delNode == headNode) &#123;     <span class="comment">//  如果只有一个节点</span></span><br><span class="line">            headNode.setData(<span class="keyword">null</span>); <span class="comment">// java 改变真实值需要通过set()方法</span></span><br><span class="line">            delNode.setData(<span class="keyword">null</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;     <span class="comment">//  如果是尾节点</span></span><br><span class="line">            ListNode node = headNode;</span><br><span class="line">            <span class="keyword">while</span> (node.next != delNode) &#123;</span><br><span class="line">                node = node.next;</span><br><span class="line">            &#125;</span><br><span class="line">            node.next = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-链表倒数第k节点"><a href="#3-链表倒数第k节点" class="headerlink" title="3.  链表倒数第k节点"></a>3. <a name="3.3"> 链表倒数第k节点</a></h3><ol>
+<li><p>题目表述</p>
+<p>输入一个单链表，输出该链表中倒数第 k 个<strong>结点</strong>。</p>
+</li>
+</ol>
+<ol start="2">
+<li><p>解题思路</p>
+<p>准备 2 个指针<code>a</code>和<code>b</code>均指向第一个节点，<code>a</code>先移动<code>k</code>个位置；然后<code>a</code>和<code>b</code>一起向后移动，此时两个只指针的位置差为<code>k</code>；直到<code>a</code>移动到尾结点停止，此时<code>b</code>指向的节点就是倒数第 k 个节点。</p>
+</li>
+</ol>
+<ol start="3">
+<li>代码</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="comment">//采用双指针</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">FindKthToTail</span><span class="params">(ListNode head,<span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(head==<span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        ListNode p1 = head;<span class="comment">//记录第k个节点</span></span><br><span class="line">        <span class="keyword">while</span>(p1!=<span class="keyword">null</span> &amp;&amp; k&gt;<span class="number">0</span>)&#123;</span><br><span class="line">            k--;</span><br><span class="line">            p1 = p1.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(k&gt;<span class="number">0</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        ListNode p2 = head;</span><br><span class="line">        <span class="keyword">while</span>(p1!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            p1 = p1.next;</span><br><span class="line">            p2 = p2.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> p2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="4-反转链表"><a href="#4-反转链表" class="headerlink" title="4.  反转链表"></a>4. <a name="3.4"> 反转链表</a></h3><ol>
+<li><p>题目表述</p>
+<p>定义一个函数，输入一个链表的头结点，反转该链表并输出反转后链表的头结点。</p>
+</li>
+</ol>
+<ol start="2">
+<li><p>解题思路</p>
+<p><strong>思路一</strong>：经典的“链表头插法”，时间复杂度是 $O(N)$，但是空间复杂度也是 $O(N)$</p>
+<p><strong>思路二</strong>：链表原地操作，时间复杂度是 $O(N)$，但是空间复杂度只有 $O(1)$。</p>
+<ol>
+<li>保存当前节点<code>node</code>的上一个节点<code>pre</code></li>
+<li>节点<code>node</code>的<code>next</code>指向<code>pre</code></li>
+<li>分别将<code>pre</code>和<code>node</code>向后移动 1 个位置</li>
+<li>如果<code>node</code>为 null，链表翻转完毕，此时<code>pre</code>指向新的头节点，返回即可</li>
+<li>否则，回到第 1 步继续执行</li>
+</ol>
+</li>
+</ol>
+<ol>
+<li>代码</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">ReverseList</span><span class="params">(ListNode head)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//递归问题 两个listnode 反转</span></span><br><span class="line">        <span class="keyword">if</span>(head==<span class="keyword">null</span> || head.next==<span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> head;</span><br><span class="line">        ListNode nxt = head.next;</span><br><span class="line">        head.next = <span class="keyword">null</span>;</span><br><span class="line">        ListNode newhead = ReverseList(nxt);</span><br><span class="line">        nxt.next = head;</span><br><span class="line">        <span class="comment">//return 只是传递新的表头，在这之前反转操作已经完成</span></span><br><span class="line">        <span class="keyword">return</span> newhead;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-合并两个有序链表"><a href="#5-合并两个有序链表" class="headerlink" title="5.  合并两个有序链表"></a>5. <a name="3.5"> 合并两个有序链表</a></h3><ol>
+<li><p>题目表述</p>
+<p>输入两个递增排序的链表，合并这两个链表并使新链表中的结点仍然是按照递增排序的。</p>
+</li>
+</ol>
+<ol start="2">
+<li><p>解题思路</p>
+<p>准备一个指针<code>node</code>，假设指向两个链表的中节点的指针分别是：<code>p1</code>和<code>p2</code>。</p>
+<ol>
+<li>比较<code>p1</code>和<code>p2</code>的<code>value</code>大小</li>
+</ol>
+<ul>
+<li>如果，p1.value 小于 p2.value, node.next 指向 p1, p1 向后移动</li>
+<li>否则，node.next 指向 p2, p2 向后移动</li>
+</ul>
+<ol>
+<li>重复第 1 步，直到其中一个链表遍历完</li>
+<li>跳出循环，将 node.next 指向未遍历完的链表的剩余部分</li>
+</ol>
+<p>整个过程的时间复杂度是 O(N), 空间复杂度是 O(1)</p>
+</li>
+</ol>
+<ol start="3">
+<li>代码</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//递归方式</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">Merge</span><span class="params">(ListNode list1,ListNode list2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(list1 == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> list2;</span><br><span class="line">        <span class="keyword">if</span>(list2 == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> list1;</span><br><span class="line">        <span class="keyword">if</span>(list1.val&lt;=list2.val)&#123;</span><br><span class="line">            list1.next = Merge(list1.next,list2);</span><br><span class="line">            <span class="keyword">return</span> list1;</span><br><span class="line">        &#125; <span class="keyword">else</span>&#123;</span><br><span class="line">            list2.next = Merge(list1,list2.next);</span><br><span class="line">            <span class="keyword">return</span> list2;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//循环方式</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">Merge</span><span class="params">(ListNode list1,ListNode list2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(list1 == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> list2;</span><br><span class="line">        <span class="keyword">if</span>(list2 == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> list1;</span><br><span class="line">        ListNode node = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</span><br><span class="line">        ListNode  head = node;</span><br><span class="line">        <span class="keyword">while</span>(list1!=<span class="keyword">null</span>&amp;&amp;list2!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(list1.val&lt;=list2.val)&#123;</span><br><span class="line">                node.next = list1;</span><br><span class="line">                list1 = list1.next;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                node.next = list2;</span><br><span class="line">                list2 = list2.next;</span><br><span class="line">            &#125;</span><br><span class="line">            node = node.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span>(list1!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            node.next = list1;</span><br><span class="line">            list1 = list1.next;</span><br><span class="line">            node = node.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span>(list2!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            node.next = list2;</span><br><span class="line">            list2 = list2.next;</span><br><span class="line">            node = node.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> head.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="6-复杂链表的复制"><a href="#6-复杂链表的复制" class="headerlink" title="6.  复杂链表的复制"></a>6. <a name="3.6"> 复杂链表的复制</a></h3><ol>
+<li><p>题目表述</p>
+<p>请实现函数<code>ComplexListNode *Clone（ComplexListNode* pHead）</code>，复制一个复杂链表。在复杂链表中，每个结点除了有一个 next 指针指向下一个结点外，还有一个 sibling 指向链表中的任意结点或者 NULL。</p>
+</li>
+</ol>
+<ol start="2">
+<li><p>解题思路</p>
+<p>按照正常的思路，首先从头到尾遍历链表，拷贝每个节点的 value 和 next 指针。然后从头再次遍历，第二次遍历的目的在于拷贝每个节点的 sibling 指针。</p>
+<p>然而即使找到原节点的 sibling 指针，还是得为了找到复制节点对应的 sibling 指针而再遍历一遍。那么对于 n 个要寻找 sibling 指针的节点，复杂度就是 O(N*N)。</p>
+<p>显然，为了降低复杂度，必须从第二次遍历着手。这里采用的方法是，在第一次遍历的时候，把 <code>(原节点, 复制节点)</code> 作为映射保存在表中。那么第二次遍历的时候，就能在 O(1) 的复杂度下立即找到原链上 sibling 指针在复制链上对应的映射。采用hash表</p>
+</li>
+</ol>
+<ol start="3">
+<li>代码</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ComplexListNode</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">int</span> m_nValue;</span><br><span class="line">	ComplexListNode m_pNext;</span><br><span class="line">	ComplexListNode m_pSibling;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">ComplexListNode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">ComplexListNode</span><span class="params">(<span class="keyword">int</span> m_nValue)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">super</span>();</span><br><span class="line">		<span class="keyword">this</span>.m_nValue = m_nValue;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> ComplexListNode <span class="title">clone</span><span class="params">(ComplexListNode pHead)</span></span>&#123;</span><br><span class="line">		</span><br><span class="line">	<span class="keyword">if</span>(pHead == <span class="keyword">null</span>)&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	HashMap&lt;ComplexListNode, ComplexListNode&gt; map = <span class="keyword">new</span> HashMap&lt;ComplexListNode, ComplexListNode&gt;();</span><br><span class="line">	ComplexListNode pClonedHead = <span class="keyword">new</span> ComplexListNode(pHead.m_nValue); <span class="comment">//复制链表的头结点</span></span><br><span class="line">	ComplexListNode pNode = pHead, pClonedNode = pClonedHead;</span><br><span class="line">	map.put(pNode, pClonedNode);</span><br><span class="line">		</span><br><span class="line">	<span class="comment">//第一步，hashMap保存，原链表节点映射复制链表节点</span></span><br><span class="line">	<span class="keyword">while</span>(pNode.m_pNext != <span class="keyword">null</span>)&#123;</span><br><span class="line">		pClonedNode.m_pNext = <span class="keyword">new</span> ComplexListNode(pNode.m_pNext.m_nValue);</span><br><span class="line">		pNode = pNode.m_pNext;</span><br><span class="line">		pClonedNode = pClonedNode.m_pNext;</span><br><span class="line">		map.put(pNode, pClonedNode);</span><br><span class="line">	&#125;</span><br><span class="line">		</span><br><span class="line">	<span class="comment">//第二步：找到对应的m_pSibling</span></span><br><span class="line">	pNode = pHead;</span><br><span class="line">	pClonedNode = pClonedHead;</span><br><span class="line">	<span class="keyword">while</span>(pClonedNode!=<span class="keyword">null</span>)&#123;</span><br><span class="line">		pClonedNode.m_pSibling = map.get(pNode.m_pSibling);</span><br><span class="line">		pNode = pNode.m_pNext;</span><br><span class="line">		pClonedNode = pClonedNode.m_pNext;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> pClonedHead;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="7-两个链表中的第一个公共节点"><a href="#7-两个链表中的第一个公共节点" class="headerlink" title="7.  两个链表中的第一个公共节点"></a>7. <a name="3.7"> 两个链表中的第一个公共节点</a></h3><ol>
+<li><p>题目表述</p>
+<p>输入两个链表，找出它们的第一个公共结点。</p>
+</li>
+</ol>
+<ol start="2">
+<li><p>解题思路</p>
+<p>思路一：栈实现</p>
+<p>在第一个公共节点前的节点都是不相同的，因此只要倒序遍历两个链表，找出最后一个出现的相同节点即可。因为链表不能倒序遍历，所以借助栈实现。</p>
+<p>思路二：快慢指针</p>
+<p>假设链表 A 长度大于链表 B 长度，它们的长度差为 diff。</p>
+<p>让 A 的指针先移动 diff 的位移，然后 A 和 B 的指针再同时向后移动，每次比较节点，选出第一个出现的相同节点。</p>
+</li>
+</ol>
+<ol start="3">
+<li>代码</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">public class ListNode &#123;</span></span><br><span class="line"><span class="comment">    int val;</span></span><br><span class="line"><span class="comment">    ListNode next = null;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    ListNode(int val) &#123;</span></span><br><span class="line"><span class="comment">        this.val = val;</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment">&#125;*/</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 思路二：快慢指针</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;Node&#125; pHead1</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;Node&#125; pHead2</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">FindFirstCommonNode</span><span class="params">(ListNode pHead1, ListNode pHead2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> length1=<span class="number">0</span>,length2=<span class="number">0</span>;</span><br><span class="line">        ListNode node = pHead1;</span><br><span class="line">        <span class="keyword">while</span> (node!=<span class="keyword">null</span>) &#123;</span><br><span class="line">            ++length1;</span><br><span class="line">            node = node.next;</span><br><span class="line">        &#125;</span><br><span class="line">        node = pHead2;</span><br><span class="line">        <span class="keyword">while</span> (node!=<span class="keyword">null</span>) &#123;</span><br><span class="line">            ++length2;</span><br><span class="line">            node = node.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> diff = Math.abs(length1 - length2);</span><br><span class="line">        ListNode longList,shortList;</span><br><span class="line">        <span class="keyword">if</span> (length1 &gt; length2) &#123;</span><br><span class="line">            longList = pHead1;</span><br><span class="line">            shortList = pHead2;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            longList = pHead2;</span><br><span class="line">            shortList = pHead1;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span> (diff &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            longList = longList.next;</span><br><span class="line">            --diff;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span> (longList!=<span class="keyword">null</span> &amp;&amp; shortList!=<span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (longList == shortList) &#123;</span><br><span class="line">              <span class="keyword">return</span> longList;</span><br><span class="line">            &#125;</span><br><span class="line">            longList = longList.next;</span><br><span class="line">            shortList = shortList.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//方法二的简化版</span></span><br><span class="line"><span class="comment">/***</span></span><br><span class="line"><span class="comment">*当访问链表 A 的指针访问到链表尾部时，令它从链表 B 的头部重新开始访问链表 B；同样地，当访问链表 B 的指针*访问到链表尾部时，令它从链表 A 的头部重新开始访问链表 A。这样就能控制访问 A 和 B 两个链表的指针能同时访*问到交点。</span></span><br><span class="line"><span class="comment">***/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">FindFirstCommonNode</span><span class="params">(ListNode pHead1, ListNode pHead2)</span> </span>&#123;</span><br><span class="line">        ListNode list1=pHead1;</span><br><span class="line">        ListNode list2=pHead2;</span><br><span class="line">        <span class="keyword">while</span>(list1!=list2)</span><br><span class="line">        &#123;</span><br><span class="line">            list1=(list1==<span class="keyword">null</span>)?pHead2:list1.next;</span><br><span class="line">            list2=(list2==<span class="keyword">null</span>)?pHead1:list2.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> list1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : fenghuayangyi <br>
+        
+        原文链接 : <a href>https://github.com/fenghuayangyi/2019/03/04/data struct Algorithm/linkedlistAlgorithm/</a><br>
+        版权声明 : 本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/数据结构，面试/">
+              #数据结构，面试
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2019/03/04/data struct Algorithm/searchAlgorithm/" target="_self">面试准备之刷题总结：查找</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2019/03/04/data struct Algorithm/arrayAlgorithm/" target="_self">面试准备之刷题总结：数组</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+   
+
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2018, 11, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>
